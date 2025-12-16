@@ -1,66 +1,61 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>RSC Explorer Embeds</title>
-        <style>
-            body {
-                font-family: system-ui, sans-serif;
-                max-width: 900px;
-                margin: 0 auto;
-                padding: 20px;
-                line-height: 1.6;
-            }
-            h2 {
-                margin-top: 40px;
-                border-bottom: 1px solid #eee;
-                padding-bottom: 8px;
-            }
-            .embed-container {
-                height: 500px;
-                margin-bottom: 40px;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>RSC Explorer Embeds</h1>
-        <p>
-            Multiple embedded RSC explorers demonstrating different React Server
-            Components patterns.
-        </p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSC Explorer Embeds</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      h2 {
+        margin-top: 40px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+      }
+      .embed-container {
+        height: 500px;
+        margin-bottom: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>RSC Explorer Embeds</h1>
+    <p>Multiple embedded RSC explorers demonstrating different React Server Components patterns.</p>
 
-        <h2>Hello World</h2>
-        <p>The simplest possible server component.</p>
-        <div id="hello" class="embed-container"></div>
+    <h2>Hello World</h2>
+    <p>The simplest possible server component.</p>
+    <div id="hello" class="embed-container"></div>
 
-        <h2>Counter</h2>
-        <p>A client component with state, rendered from a server component.</p>
-        <div id="counter" class="embed-container"></div>
+    <h2>Counter</h2>
+    <p>A client component with state, rendered from a server component.</p>
+    <div id="counter" class="embed-container"></div>
 
-        <h2>Async Component</h2>
-        <p>
-            Server components can be async and use Suspense for loading states.
-        </p>
-        <div id="async" class="embed-container"></div>
+    <h2>Async Component</h2>
+    <p>Server components can be async and use Suspense for loading states.</p>
+    <div id="async" class="embed-container"></div>
 
-        <h2>Form Action</h2>
-        <p>Server actions handle form submissions with useActionState.</p>
-        <div id="form" class="embed-container"></div>
-    </body>
+    <h2>Form Action</h2>
+    <p>Server actions handle form submissions with useActionState.</p>
+    <div id="form" class="embed-container"></div>
+  </body>
 
-    <script type="module">
-        import { mount } from "http://localhost:3333/embed.js";
+  <script type="module">
+    import { mount } from "http://localhost:3333/embed.js";
 
-        mount("#hello", {
-            server: `export default function App() {
+    mount("#hello", {
+      server: `export default function App() {
   return <h1>Hello World</h1>
 }`,
-            client: `'use client'`,
-        });
+      client: `'use client'`,
+    });
 
-        mount("#counter", {
-            server: `import { Counter } from './client'
+    mount("#counter", {
+      server: `import { Counter } from './client'
 
 export default function App() {
   return (
@@ -70,7 +65,7 @@ export default function App() {
     </div>
   )
 }`,
-            client: `'use client'
+      client: `'use client'
 
 import { useState } from 'react'
 
@@ -87,10 +82,10 @@ export function Counter({ initialCount }) {
     </div>
   )
 }`,
-        });
+    });
 
-        mount("#async", {
-            server: `import { Suspense } from 'react'
+    mount("#async", {
+      server: `import { Suspense } from 'react'
 
 export default function App() {
   return (
@@ -107,11 +102,11 @@ async function SlowComponent() {
   await new Promise(r => setTimeout(r, 500))
   return <p>Data loaded!</p>
 }`,
-            client: `'use client'`,
-        });
+      client: `'use client'`,
+    });
 
-        mount("#form", {
-            server: `import { Form } from './client'
+    mount("#form", {
+      server: `import { Form } from './client'
 
 export default function App() {
   return (
@@ -129,7 +124,7 @@ async function greet(prevState, formData) {
   if (!name) return { message: null, error: 'Please enter a name' }
   return { message: \`Hello, \${name}!\`, error: null }
 }`,
-            client: `'use client'
+      client: `'use client'
 
 import { useActionState } from 'react'
 
@@ -156,89 +151,89 @@ export function Form({ greetAction }) {
     </form>
   )
 }`,
-        });
-    </script>
+    });
+  </script>
 
-    <div id="rsc-explorer" style="height: 500px"></div>
-    <script type="module">
-        import { mount } from 'https://rscexplorer.dev/embed.js';
+  <div id="rsc-explorer" style="height: 500px"></div>
+  <script type="module">
+    import { mount } from 'https://rscexplorer.dev/embed.js';
 
-        mount('#rsc-explorer', {
-          server: `
-        import { Suspense } from 'react'
-        import { Timer, Router } from './client'
+    mount('#rsc-explorer', {
+      server: `
+    import { Suspense } from 'react'
+    import { Timer, Router } from './client'
 
-        export default function App() {
-          return (
-            <div>
-              <h1>Router Refresh!!!</h1>
-              <p style={{ marginBottom: 12, color: '#666' }}>
-                Client state persists across server navigations
-              </p>
-              <Suspense fallback={<p>Loading...</p>}>
-                <Router initial={renderPage()} refreshAction={renderPage} />
-              </Suspense>
-            </div>
-          )
-        }
+    export default function App() {
+      return (
+        <div>
+          <h1>Router Refresh!!!</h1>
+          <p style={{ marginBottom: 12, color: '#666' }}>
+            Client state persists across server navigations
+          </p>
+          <Suspense fallback={<p>Loading...</p>}>
+            <Router initial={renderPage()} refreshAction={renderPage} />
+          </Suspense>
+        </div>
+      )
+    }
 
-        async function renderPage() {
-          'use server'
-          return <ColorTimer />
-        }
+    async function renderPage() {
+      'use server'
+      return <ColorTimer />
+    }
 
-        async function ColorTimer() {
-          await new Promise(r => setTimeout(r, 300))
-          const hue = Math.floor(Math.random() * 360)
-          return <Timer color={`hsl(${hue}, 70%, 85%)`} />
-        }
-          `,
-          client: `
-        'use client'
+    async function ColorTimer() {
+      await new Promise(r => setTimeout(r, 300))
+      const hue = Math.floor(Math.random() * 360)
+      return <Timer color={`hsl(${hue}, 70%, 85%)`} />
+    }
+      `,
+      client: `
+    'use client'
 
-        import { useState, useEffect, useTransition, use } from 'react'
+    import { useState, useEffect, useTransition, use } from 'react'
 
-        export function Timer({ color }) {
-          const [seconds, setSeconds] = useState(0)
+    export function Timer({ color }) {
+      const [seconds, setSeconds] = useState(0)
 
-          useEffect(() => {
-            const id = setInterval(() => setSeconds(s => s + 1), 1000)
-            return () => clearInterval(id)
-          }, [])
+      useEffect(() => {
+        const id = setInterval(() => setSeconds(s => s + 1), 1000)
+        return () => clearInterval(id)
+      }, [])
 
-          return (
-            <div style={{
-              background: color,
-              padding: 24,
-              borderRadius: 8,
-              textAlign: 'center'
-            }}>
-              <p style={{ fontFamily: 'monospace', fontSize: 32, margin: 0 }}>{seconds}s</p>
-            </div>
-          )
-        }
+      return (
+        <div style={{
+          background: color,
+          padding: 24,
+          borderRadius: 8,
+          textAlign: 'center'
+        }}>
+          <p style={{ fontFamily: 'monospace', fontSize: 32, margin: 0 }}>{seconds}s</p>
+        </div>
+      )
+    }
 
-        export function Router({ initial, refreshAction }) {
-          const [contentPromise, setContentPromise] = useState(initial)
-          const [isPending, startTransition] = useTransition()
-          const content = use(contentPromise)
+    export function Router({ initial, refreshAction }) {
+      const [contentPromise, setContentPromise] = useState(initial)
+      const [isPending, startTransition] = useTransition()
+      const content = use(contentPromise)
 
-          const refresh = () => {
-            startTransition(() => {
-              setContentPromise(refreshAction())
-            })
-          }
+      const refresh = () => {
+        startTransition(() => {
+          setContentPromise(refreshAction())
+        })
+      }
 
-          return (
-            <div style={{ opacity: isPending ? 0.6 : 1, transition: 'opacity 0.2s' }}>
-              {content}
-              <button onClick={refresh} disabled={isPending} style={{ marginTop: 12 }}>
-                {isPending ? 'Refreshing...' : 'Refresh'}
-              </button>
-            </div>
-          )
-        }
-          `
-        });
-    </script>
+      return (
+        <div style={{ opacity: isPending ? 0.6 : 1, transition: 'opacity 0.2s' }}>
+          {content}
+          <button onClick={refresh} disabled={isPending} style={{ marginTop: 12 }}>
+            {isPending ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+      )
+    }
+      `
+    });
+  </script>
 </html>

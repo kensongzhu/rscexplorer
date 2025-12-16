@@ -1,6 +1,6 @@
-import { test, expect, beforeAll, afterAll, afterEach } from 'vitest';
-import { chromium } from 'playwright';
-import { createHelpers } from './helpers.js';
+import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
+import { chromium } from "playwright";
+import { createHelpers } from "./helpers.js";
 
 let browser, page, h;
 
@@ -18,8 +18,8 @@ afterEach(async () => {
   await h.checkNoRemainingSteps();
 });
 
-test('kitchensink sample - renders all RSC protocol types', async () => {
-  await h.load('kitchensink');
+test("kitchensink sample - renders all RSC protocol types", async () => {
+  await h.load("kitchensink");
 
   // Should have many rows for all the different types
   const rows = await h.getRows();

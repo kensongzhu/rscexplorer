@@ -11,7 +11,11 @@
     "dev": "vite",
     "preview": "vite preview",
     "deploy": "npm install && npm test && npm run build:versions && wrangler pages deploy dist --project-name=rscexplorer",
-    "test": "vitest run --reporter=verbose"
+    "test": "vitest run --reporter=verbose",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "Dan Abramov <dan.abramov@gmail.com>",
@@ -37,13 +41,23 @@
     "vite": "8.0.0-beta.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitest/browser": "^4.0.15",
     "@vitest/browser-playwright": "^4.0.15",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "playwright": "^1.57.0",
+    "prettier": "^3.7.4",
     "rolldown": "^1.0.0-beta.54",
+    "typescript-eslint": "^8.50.0",
     "vite": "8.0.0-beta.2",
     "vitest": "^4.0.15",
     "wrangler": "^4.0.0"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
   }
 }

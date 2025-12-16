@@ -1,13 +1,13 @@
 export const SAMPLES = {
   hello: {
-    name: 'Hello World',
+    name: "Hello World",
     server: `export default function App() {
   return <h1>Hello World</h1>
 }`,
-    client: `'use client'`
+    client: `'use client'`,
   },
   async: {
-    name: 'Async Component',
+    name: "Async Component",
     server: `import { Suspense } from 'react'
 
 export default function App() {
@@ -25,10 +25,10 @@ async function SlowComponent() {
   await new Promise(r => setTimeout(r, 500))
   return <p>Data loaded!</p>
 }`,
-    client: `'use client'`
+    client: `'use client'`,
   },
   counter: {
-    name: 'Counter',
+    name: "Counter",
     server: `import { Counter } from './client'
 
 export default function App() {
@@ -55,10 +55,10 @@ export function Counter({ initialCount }) {
       </div>
     </div>
   )
-}`
+}`,
   },
   form: {
-    name: 'Form Action',
+    name: "Form Action",
     server: `import { Form } from './client'
 
 export default function App() {
@@ -103,10 +103,10 @@ export function Form({ greetAction }) {
       {state.message && <p style={{ color: 'green', marginTop: 8 }}>{state.message}</p>}
     </form>
   )
-}`
+}`,
   },
   pagination: {
-    name: 'Pagination',
+    name: "Pagination",
     server: `import { Suspense } from 'react'
 import { Paginator } from './client'
 
@@ -198,10 +198,10 @@ function usePagination(initialItems, initialCursor, action) {
   }
 
   return { items, hasMore, formAction, isPending }
-}`
+}`,
   },
   refresh: {
-    name: 'Router Refresh',
+    name: "Router Refresh",
     server: `import { Suspense } from 'react'
 import { Timer, Router } from './client'
 
@@ -272,10 +272,10 @@ export function Router({ initial, refreshAction }) {
       </button>
     </div>
   )
-}`
+}`,
   },
   errors: {
-    name: 'Error Handling',
+    name: "Error Handling",
     server: `import { Suspense } from 'react'
 import { ErrorBoundary } from './client'
 
@@ -331,10 +331,10 @@ export class ErrorBoundary extends Component {
     }
     return this.props.children
   }
-}`
+}`,
   },
   clientref: {
-    name: 'Client Reference',
+    name: "Client Reference",
     server: `// Server can pass client module exports as props
 import { darkTheme, lightTheme, ThemedBox } from './client'
 
@@ -362,10 +362,10 @@ export function ThemedBox({ theme, label }) {
       {label} theme
     </div>
   )
-}`
+}`,
   },
   bound: {
-    name: 'Bound Actions',
+    name: "Bound Actions",
     server: `// action.bind() pre-binds arguments on the server
 import { Greeter } from './client'
 
@@ -407,10 +407,10 @@ export function Greeter({ action }) {
       {result && <span style={{ marginLeft: 8 }}>{result}</span>}
     </form>
   )
-}`
+}`,
   },
   kitchensink: {
-    name: 'Kitchen Sink',
+    name: "Kitchen Sink",
     server: `// Kitchen Sink - All RSC Protocol Types
 import { Suspense } from 'react'
 import { DataDisplay } from './client'
@@ -568,10 +568,10 @@ function renderValue(v) {
   if (Array.isArray(v)) return '[' + v.length + ' items]'
   if (typeof v === 'object') return '{...}'
   return String(v)
-}`
+}`,
   },
   cve: {
-    name: 'CVE-2025-55182',
+    name: "CVE-2025-55182",
     server: `import { Instructions } from './client'
 
 async function poc() {

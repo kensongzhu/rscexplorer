@@ -12,17 +12,17 @@ This is a hobby project and is not affiliated with or endorsed by any person, li
 
 ## Examples
 
-* [Hello World](https://rscexplorer.dev/?s=hello)
-* [Async Component](https://rscexplorer.dev/?s=async)
-* [Counter](https://rscexplorer.dev/?s=counter)
-* [Form Action](https://rscexplorer.dev/?s=form)
-* [Pagination](https://rscexplorer.dev/?s=pagination)
-* [Router Refresh](https://rscexplorer.dev/?s=refresh)
-* [Error Handling](https://rscexplorer.dev/?s=errors)
-* [Client Reference](https://rscexplorer.dev/?s=clientref)
-* [Bound Actions](https://rscexplorer.dev/?s=bound)
-* [Kitchen Sink](https://rscexplorer.dev/?s=kitchensink)
-* [CVE-2025-55182](https://rscexplorer.dev/?s=cve)
+- [Hello World](https://rscexplorer.dev/?s=hello)
+- [Async Component](https://rscexplorer.dev/?s=async)
+- [Counter](https://rscexplorer.dev/?s=counter)
+- [Form Action](https://rscexplorer.dev/?s=form)
+- [Pagination](https://rscexplorer.dev/?s=pagination)
+- [Router Refresh](https://rscexplorer.dev/?s=refresh)
+- [Error Handling](https://rscexplorer.dev/?s=errors)
+- [Client Reference](https://rscexplorer.dev/?s=clientref)
+- [Bound Actions](https://rscexplorer.dev/?s=bound)
+- [Kitchen Sink](https://rscexplorer.dev/?s=kitchensink)
+- [CVE-2025-55182](https://rscexplorer.dev/?s=cve)
 
 ## Embedding
 

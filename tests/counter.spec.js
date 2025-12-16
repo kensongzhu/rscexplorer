@@ -1,6 +1,6 @@
-import { test, expect, beforeAll, afterAll, afterEach } from 'vitest';
-import { chromium } from 'playwright';
-import { createHelpers } from './helpers.js';
+import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
+import { chromium } from "playwright";
+import { createHelpers } from "./helpers.js";
 
 let browser, page, h;
 
@@ -18,8 +18,8 @@ afterEach(async () => {
   await h.checkNoRemainingSteps();
 });
 
-test('counter sample', async () => {
-  await h.load('counter');
+test("counter sample", async () => {
+  await h.load("counter");
 
   expect(await h.stepAll()).toMatchInlineSnapshot(`
     "<div>
@@ -30,6 +30,6 @@ test('counter sample', async () => {
   expect(await h.preview()).toMatchInlineSnapshot(`"Counter Count: 0 − +"`);
 
   // Client interactivity works
-  await h.frame().locator('.preview-container button').last().click();
-  expect(await h.preview()).toContain('Count: 1');
+  await h.frame().locator(".preview-container button").last().click();
+  expect(await h.preview()).toContain("Count: 1");
 });

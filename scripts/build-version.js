@@ -24,9 +24,7 @@ function installReactVersion(version) {
 
 function buildForVersion(version, outDir) {
   console.log(`\n========================================`);
-  console.log(
-    `Building React ${version} (dev + prod) → ${outDir || `dist/${version}`}`,
-  );
+  console.log(`Building React ${version} (dev + prod) → ${outDir || `dist/${version}`}`);
   console.log(`========================================`);
 
   installReactVersion(version);

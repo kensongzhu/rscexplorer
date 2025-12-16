@@ -370,16 +370,29 @@ main {
   border-radius: 3px;
   margin: -8px;
 }
-.value-string { color: #22863a; }
-.value-number { color: #005cc5; }
-.value-boolean { color: #d73a49; }
-.value-null, .value-undefined { color: #6a737d; font-style: italic; }
-.value-key { color: #005cc5; }
+.value-string {
+  color: #22863a;
+}
+.value-number {
+  color: #005cc5;
+}
+.value-boolean {
+  color: #d73a49;
+}
+.value-null,
+.value-undefined {
+  color: #6a737d;
+  font-style: italic;
+}
+.value-key {
+  color: #005cc5;
+}
 .value-indent {
   display: block;
   padding-left: 16px;
 }
-.value-array-item, .value-object-entry {
+.value-array-item,
+.value-object-entry {
   display: block;
 }
 .value-react-element {
@@ -449,8 +462,13 @@ main {
   animation: pending-pulse 2s ease-in-out infinite;
 }
 @keyframes pending-pulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 .tree-string {
   color: #98c379;
@@ -577,8 +595,13 @@ main {
   animation: none;
 }
 @keyframes pulse-step {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 .step-slider {
   flex: 1;
@@ -671,16 +694,21 @@ main {
 }
 /* Pulsing dots for empty/waiting states */
 .empty::after {
-  content: '';
+  content: "";
   animation: none;
 }
 .waiting-dots::after {
-  content: '...';
+  content: "...";
   animation: pulse 1.5s ease-in-out infinite;
 }
 @keyframes pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Raw input form */
@@ -720,17 +748,23 @@ main {
   width: 100%;
   padding: 5px 28px 5px 10px;
   margin-bottom: 8px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center, linear-gradient(to bottom, #333, #2a2a2a);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+      no-repeat right 8px center,
+    linear-gradient(to bottom, #333, #2a2a2a);
   border: 1px solid #555;
   border-radius: 4px;
   color: #fff;
   font-size: 12px;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .raw-input-action:hover {
   border-color: #666;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center, linear-gradient(to bottom, #3a3a3a, #333);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+      no-repeat right 8px center,
+    linear-gradient(to bottom, #3a3a3a, #333);
 }
 .raw-input-action:focus {
   outline: none;
@@ -796,7 +830,9 @@ main {
   padding: 0 4px;
   line-height: 1;
   opacity: 0.5;
-  transition: opacity 0.15s, color 0.15s;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
 }
 .delete-entry-btn:hover {
   opacity: 1;
@@ -807,7 +843,9 @@ main {
 @media (max-width: 768px) {
   /* Keep 4-grid layout on mobile */
   /* Prevent iOS zoom on all form elements */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px !important;
   }
   .raw-input-payload {

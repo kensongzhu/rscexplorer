@@ -23,7 +23,7 @@ export class Timeline {
 
   notify() {
     this.snapshot = null; // Invalidate cache
-    this.listeners.forEach(fn => fn());
+    this.listeners.forEach((fn) => fn());
   }
 
   getChunkCount(entry) {
@@ -75,13 +75,13 @@ export class Timeline {
   };
 
   setRender(stream) {
-    this.entries = [{ type: 'render', stream }];
+    this.entries = [{ type: "render", stream }];
     this.cursor = 0;
     this.notify();
   }
 
   addAction(name, args, stream) {
-    this.entries = [...this.entries, { type: 'action', name, args, stream }];
+    this.entries = [...this.entries, { type: "action", name, args, stream }];
     this.notify();
   }
 
@@ -110,7 +110,8 @@ export class Timeline {
     const pos = this.getPosition(this.cursor);
     if (!pos) return;
 
-    const entryEnd = this.getEntryStart(pos.entryIndex) + this.getChunkCount(this.entries[pos.entryIndex]);
+    const entryEnd =
+      this.getEntryStart(pos.entryIndex) + this.getChunkCount(this.entries[pos.entryIndex]);
     while (this.cursor < entryEnd) {
       this.stepForward();
     }

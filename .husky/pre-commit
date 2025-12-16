@@ -1,0 +1,5 @@
+echo "Running lint-staged (Prettier) ..."
+npx lint-staged
+
+echo "Running eslint ..."
+npm run lint

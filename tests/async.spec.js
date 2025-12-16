@@ -1,6 +1,6 @@
-import { test, expect, beforeAll, afterAll, afterEach } from 'vitest';
-import { chromium } from 'playwright';
-import { createHelpers } from './helpers.js';
+import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
+import { chromium } from "playwright";
+import { createHelpers } from "./helpers.js";
 
 let browser, page, h;
 
@@ -18,8 +18,8 @@ afterEach(async () => {
   await h.checkNoRemainingSteps();
 });
 
-test('async sample', async () => {
-  await h.load('async');
+test("async sample", async () => {
+  await h.load("async");
 
   // First tree state - Suspense with Pending
   expect(await h.stepAll()).toMatchInlineSnapshot(`

@@ -1,13 +1,13 @@
-import React, { Suspense, Component } from 'react';
+import React, { Suspense, Component } from "react";
 
 function isReactElement(value) {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== "object") return false;
   const typeofSymbol = value.$$typeof;
-  return typeofSymbol === Symbol.for('react.transitional.element');
+  return typeofSymbol === Symbol.for("react.transitional.element");
 }
 
 function escapeHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function PendingFallback() {
@@ -58,103 +58,126 @@ function JSXValue({ value, indent = 0, ancestors = [] }) {
   if (value === null) return <span className="tree-null">null</span>;
   if (value === undefined) return <span className="tree-undefined">undefined</span>;
 
-  if (typeof value === 'string') {
-    const display = value.length > 50 ? value.slice(0, 50) + '...' : value;
+  if (typeof value === "string") {
+    const display = value.length > 50 ? value.slice(0, 50) + "..." : value;
     return <span className="tree-string">"{escapeHtml(display)}"</span>;
   }
-  if (typeof value === 'number') {
-    const display = Object.is(value, -0) ? '-0' : String(value);
+  if (typeof value === "number") {
+    const display = Object.is(value, -0) ? "-0" : String(value);
     return <span className="tree-number">{display}</span>;
   }
-  if (typeof value === 'bigint') {
+  if (typeof value === "bigint") {
     return <span className="tree-number">{String(value)}n</span>;
   }
-  if (typeof value === 'boolean') return <span className="tree-boolean">{String(value)}</span>;
-  if (typeof value === 'symbol') {
+  if (typeof value === "boolean") return <span className="tree-boolean">{String(value)}</span>;
+  if (typeof value === "symbol") {
     return <span className="tree-symbol">{value.toString()}</span>;
   }
-  if (typeof value === 'function') {
-    return <span className="tree-function">[Function: {value.name || 'anonymous'}]</span>;
+  if (typeof value === "function") {
+    return <span className="tree-function">[Function: {value.name || "anonymous"}]</span>;
   }
 
-  if (typeof value === 'object' && value !== null) {
+  if (typeof value === "object" && value !== null) {
     if (ancestors.includes(value)) {
       return <span className="tree-circular">[Circular]</span>;
     }
   }
 
-  const nextAncestors = typeof value === 'object' && value !== null
-    ? [...ancestors, value]
-    : ancestors;
+  const nextAncestors =
+    typeof value === "object" && value !== null ? [...ancestors, value] : ancestors;
 
   if (value instanceof Date) {
     return <span className="tree-date">Date({value.toISOString()})</span>;
   }
 
   if (value instanceof Map) {
-    if (value.size === 0) return <span className="tree-collection">Map(0) {'{}'}</span>;
-    const pad = '  '.repeat(indent + 1);
-    const closePad = '  '.repeat(indent);
+    if (value.size === 0) return <span className="tree-collection">Map(0) {"{}"}</span>;
+    const pad = "  ".repeat(indent + 1);
+    const closePad = "  ".repeat(indent);
     return (
       <>
-        <span className="tree-collection">Map({value.size}) {'{\n'}</span>
+        <span className="tree-collection">
+          Map({value.size}) {"{\n"}
+        </span>
         {Array.from(value.entries()).map(([k, v], i) => (
           <React.Fragment key={i}>
-            {pad}<JSXValue value={k} indent={indent + 1} ancestors={nextAncestors} /> =&gt; <JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
-            {i < value.size - 1 ? ',' : ''}{'\n'}
+            {pad}
+            <JSXValue value={k} indent={indent + 1} ancestors={nextAncestors} /> =&gt;{" "}
+            <JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
+            {i < value.size - 1 ? "," : ""}
+            {"\n"}
           </React.Fragment>
         ))}
-        {closePad}{'}'}
+        {closePad}
+        {"}"}
       </>
     );
   }
 
   if (value instanceof Set) {
-    if (value.size === 0) return <span className="tree-collection">Set(0) {'{}'}</span>;
-    const pad = '  '.repeat(indent + 1);
-    const closePad = '  '.repeat(indent);
+    if (value.size === 0) return <span className="tree-collection">Set(0) {"{}"}</span>;
+    const pad = "  ".repeat(indent + 1);
+    const closePad = "  ".repeat(indent);
     return (
       <>
-        <span className="tree-collection">Set({value.size}) {'{\n'}</span>
+        <span className="tree-collection">
+          Set({value.size}) {"{\n"}
+        </span>
         {Array.from(value).map((v, i) => (
           <React.Fragment key={i}>
-            {pad}<JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
-            {i < value.size - 1 ? ',' : ''}{'\n'}
+            {pad}
+            <JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
+            {i < value.size - 1 ? "," : ""}
+            {"\n"}
           </React.Fragment>
         ))}
-        {closePad}{'}'}
+        {closePad}
+        {"}"}
       </>
     );
   }
 
   if (value instanceof FormData) {
     const entries = Array.from(value.entries());
-    if (entries.length === 0) return <span className="tree-collection">FormData {'{}'}</span>;
-    const pad = '  '.repeat(indent + 1);
-    const closePad = '  '.repeat(indent);
+    if (entries.length === 0) return <span className="tree-collection">FormData {"{}"}</span>;
+    const pad = "  ".repeat(indent + 1);
+    const closePad = "  ".repeat(indent);
     return (
       <>
-        <span className="tree-collection">FormData {'{\n'}</span>
+        <span className="tree-collection">FormData {"{\n"}</span>
         {entries.map(([k, v], i) => (
           <React.Fragment key={i}>
-            {pad}<span className="tree-key">{k}</span>: <JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
-            {i < entries.length - 1 ? ',' : ''}{'\n'}
+            {pad}
+            <span className="tree-key">{k}</span>:{" "}
+            <JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
+            {i < entries.length - 1 ? "," : ""}
+            {"\n"}
           </React.Fragment>
         ))}
-        {closePad}{'}'}
+        {closePad}
+        {"}"}
       </>
     );
   }
 
   if (value instanceof Blob) {
-    return <span className="tree-collection">Blob({value.size} bytes, "{value.type || 'application/octet-stream'}")</span>;
+    return (
+      <span className="tree-collection">
+        Blob({value.size} bytes, "{value.type || "application/octet-stream"}")
+      </span>
+    );
   }
 
   if (ArrayBuffer.isView(value)) {
     const name = value.constructor.name;
-    const preview = Array.from(value.slice(0, 5)).join(', ');
-    const suffix = value.length > 5 ? ', ...' : '';
-    return <span className="tree-collection">{name}({value.length}) [{preview}{suffix}]</span>;
+    const preview = Array.from(value.slice(0, 5)).join(", ");
+    const suffix = value.length > 5 ? ", ..." : "";
+    return (
+      <span className="tree-collection">
+        {name}({value.length}) [{preview}
+        {suffix}]
+      </span>
+    );
   }
   if (value instanceof ArrayBuffer) {
     return <span className="tree-collection">ArrayBuffer({value.byteLength} bytes)</span>;
@@ -172,15 +195,17 @@ function JSXValue({ value, indent = 0, ancestors = [] }) {
     };
 
     if (hasElements || value.length > 3) {
-      const pad = '  '.repeat(indent + 1);
-      const closePad = '  '.repeat(indent);
+      const pad = "  ".repeat(indent + 1);
+      const closePad = "  ".repeat(indent);
       return (
         <>
-          {'[\n'}
+          {"[\n"}
           {Array.from({ length: value.length }, (_, i) => (
             <React.Fragment key={i}>
-              {pad}{renderItem(i)}
-              {i < value.length - 1 ? ',' : ''}{'\n'}
+              {pad}
+              {renderItem(i)}
+              {i < value.length - 1 ? "," : ""}
+              {"\n"}
             </React.Fragment>
           ))}
           {closePad}]
@@ -193,7 +218,7 @@ function JSXValue({ value, indent = 0, ancestors = [] }) {
         {Array.from({ length: value.length }, (_, i) => (
           <React.Fragment key={i}>
             {renderItem(i)}
-            {i < value.length - 1 ? ', ' : ''}
+            {i < value.length - 1 ? ", " : ""}
           </React.Fragment>
         ))}
         ]
@@ -205,32 +230,34 @@ function JSXValue({ value, indent = 0, ancestors = [] }) {
     return <JSXElement element={value} indent={indent} ancestors={nextAncestors} />;
   }
 
-  if (typeof value === 'object') {
-    if (typeof value.next === 'function' && typeof value[Symbol.iterator] === 'function') {
-      return <span className="tree-iterator">Iterator {'{}'}</span>;
+  if (typeof value === "object") {
+    if (typeof value.next === "function" && typeof value[Symbol.iterator] === "function") {
+      return <span className="tree-iterator">Iterator {"{}"}</span>;
     }
 
-    if (typeof value[Symbol.asyncIterator] === 'function') {
-      return <span className="tree-iterator">AsyncIterator {'{}'}</span>;
+    if (typeof value[Symbol.asyncIterator] === "function") {
+      return <span className="tree-iterator">AsyncIterator {"{}"}</span>;
     }
 
     if (value instanceof ReadableStream) {
-      return <span className="tree-stream">ReadableStream {'{}'}</span>;
+      return <span className="tree-stream">ReadableStream {"{}"}</span>;
     }
 
-    if (typeof value.then === 'function') {
+    if (typeof value.then === "function") {
       return (
         <ErrorBoundary>
           <Suspense fallback={<PendingFallback />}>
             <Await promise={value}>
-              {(resolved) => <JSXValue value={resolved} indent={indent} ancestors={nextAncestors} />}
+              {(resolved) => (
+                <JSXValue value={resolved} indent={indent} ancestors={nextAncestors} />
+              )}
             </Await>
           </Suspense>
         </ErrorBoundary>
       );
     }
 
-    if (value.$$typeof === Symbol.for('react.lazy')) {
+    if (value.$$typeof === Symbol.for("react.lazy")) {
       return (
         <ErrorBoundary>
           <Suspense fallback={<PendingFallback />}>
@@ -240,34 +267,39 @@ function JSXValue({ value, indent = 0, ancestors = [] }) {
       );
     }
 
-    const entries = Object.entries(value)
-    if (entries.length === 0) return <>{'{}'}</>;
-    if (entries.length <= 2 && entries.every(([, v]) => typeof v !== 'object' || v === null)) {
+    const entries = Object.entries(value);
+    if (entries.length === 0) return <>{"{}"}</>;
+    if (entries.length <= 2 && entries.every(([, v]) => typeof v !== "object" || v === null)) {
       return (
         <>
-          {'{ '}
+          {"{ "}
           {entries.map(([k, v], i) => (
             <React.Fragment key={k}>
-              <span className="tree-key">{k}</span>: <JSXValue value={v} indent={indent} ancestors={nextAncestors} />
-              {i < entries.length - 1 ? ', ' : ''}
+              <span className="tree-key">{k}</span>:{" "}
+              <JSXValue value={v} indent={indent} ancestors={nextAncestors} />
+              {i < entries.length - 1 ? ", " : ""}
             </React.Fragment>
           ))}
-          {' }'}
+          {" }"}
         </>
       );
     }
-    const pad = '  '.repeat(indent + 1);
-    const closePad = '  '.repeat(indent);
+    const pad = "  ".repeat(indent + 1);
+    const closePad = "  ".repeat(indent);
     return (
       <>
-        {'{\n'}
+        {"{\n"}
         {entries.map(([k, v], i) => (
           <React.Fragment key={k}>
-            {pad}<span className="tree-key">{k}</span>: <JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
-            {i < entries.length - 1 ? ',' : ''}{'\n'}
+            {pad}
+            <span className="tree-key">{k}</span>:{" "}
+            <JSXValue value={v} indent={indent + 1} ancestors={nextAncestors} />
+            {i < entries.length - 1 ? "," : ""}
+            {"\n"}
           </React.Fragment>
         ))}
-        {closePad}{'}'}
+        {closePad}
+        {"}"}
       </>
     );
   }
@@ -277,44 +309,45 @@ function JSXValue({ value, indent = 0, ancestors = [] }) {
 
 function JSXElement({ element, indent, ancestors = [] }) {
   const { type, props, key } = element;
-  const pad = '  '.repeat(indent);
-  const padInner = '  '.repeat(indent + 1);
+  const pad = "  ".repeat(indent);
+  const padInner = "  ".repeat(indent + 1);
 
-  let tagName, tagClass = 'tree-tag';
-  if (typeof type === 'string') {
+  let tagName,
+    tagClass = "tree-tag";
+  if (typeof type === "string") {
     tagName = type;
-  } else if (typeof type === 'function') {
-    tagName = type.displayName || type.name || 'Component';
-    tagClass = 'tree-client-tag';
-  } else if (typeof type === 'symbol') {
+  } else if (typeof type === "function") {
+    tagName = type.displayName || type.name || "Component";
+    tagClass = "tree-client-tag";
+  } else if (typeof type === "symbol") {
     switch (type) {
-      case Symbol.for('react.fragment'):
-        tagName = 'Fragment';
+      case Symbol.for("react.fragment"):
+        tagName = "Fragment";
         break;
-      case Symbol.for('react.profiler'):
-        tagName = 'Profiler';
+      case Symbol.for("react.profiler"):
+        tagName = "Profiler";
         break;
-      case Symbol.for('react.strict_mode'):
-        tagName = 'StrictMode';
+      case Symbol.for("react.strict_mode"):
+        tagName = "StrictMode";
         break;
-      case Symbol.for('react.suspense'):
-        tagName = 'Suspense';
+      case Symbol.for("react.suspense"):
+        tagName = "Suspense";
         break;
-      case Symbol.for('react.suspense_list'):
-        tagName = 'SuspenseList';
+      case Symbol.for("react.suspense_list"):
+        tagName = "SuspenseList";
         break;
-      case Symbol.for('react.activity'):
-        tagName = 'Activity';
+      case Symbol.for("react.activity"):
+        tagName = "Activity";
         break;
-      case Symbol.for('react.view_transition'):
-        tagName = 'ViewTransition';
+      case Symbol.for("react.view_transition"):
+        tagName = "ViewTransition";
         break;
       default:
-        tagName = 'Unknown';
+        tagName = "Unknown";
     }
-    tagClass = 'tree-react-tag';
-  } else if (type && typeof type === 'object' && type.$$typeof) {
-    if (type.$$typeof === Symbol.for('react.lazy')) {
+    tagClass = "tree-react-tag";
+  } else if (type && typeof type === "object" && type.$$typeof) {
+    if (type.$$typeof === Symbol.for("react.lazy")) {
       return (
         <ErrorBoundary>
           <Suspense fallback={<PendingFallback />}>
@@ -323,22 +356,31 @@ function JSXElement({ element, indent, ancestors = [] }) {
         </ErrorBoundary>
       );
     }
-    tagName = 'Component';
-    tagClass = 'tree-client-tag';
+    tagName = "Component";
+    tagClass = "tree-client-tag";
   } else {
-    tagName = 'Unknown';
+    tagName = "Unknown";
   }
 
   const { children, ...otherProps } = props || {};
-  const propEntries = Object.entries(otherProps).filter(([k]) =>
-    !['key', 'ref', '__self', '__source'].includes(k)
+  const propEntries = Object.entries(otherProps).filter(
+    ([k]) => !["key", "ref", "__self", "__source"].includes(k),
   );
 
-  if (children === undefined || children === null || (Array.isArray(children) && children.length === 0)) {
+  if (
+    children === undefined ||
+    children === null ||
+    (Array.isArray(children) && children.length === 0)
+  ) {
     return (
       <>
         <span className={tagClass}>&lt;{tagName}</span>
-        {key != null && <> <span className="tree-prop-name">key</span>=<span className="tree-string">"{key}"</span></>}
+        {key != null && (
+          <>
+            {" "}
+            <span className="tree-prop-name">key</span>=<span className="tree-string">"{key}"</span>
+          </>
+        )}
         {propEntries.map(([k, v]) => (
           <JSXProp key={k} name={k} value={v} indent={indent + 1} ancestors={ancestors} />
         ))}
@@ -347,18 +389,27 @@ function JSXElement({ element, indent, ancestors = [] }) {
     );
   }
 
-  const hasComplexChildren = typeof children !== 'string' && typeof children !== 'number';
+  const hasComplexChildren = typeof children !== "string" && typeof children !== "number";
   return (
     <>
       <span className={tagClass}>&lt;{tagName}</span>
-      {key != null && <> <span className="tree-prop-name">key</span>=<span className="tree-string">"{key}"</span></>}
+      {key != null && (
+        <>
+          {" "}
+          <span className="tree-prop-name">key</span>=<span className="tree-string">"{key}"</span>
+        </>
+      )}
       {propEntries.map(([k, v]) => (
         <JSXProp key={k} name={k} value={v} indent={indent + 1} ancestors={ancestors} />
       ))}
       <span className={tagClass}>&gt;</span>
       {hasComplexChildren ? (
         <>
-          {'\n'}{padInner}<JSXChildren value={children} indent={indent + 1} ancestors={ancestors} />{'\n'}{pad}
+          {"\n"}
+          {padInner}
+          <JSXChildren value={children} indent={indent + 1} ancestors={ancestors} />
+          {"\n"}
+          {pad}
         </>
       ) : (
         <JSXChildren value={children} indent={indent + 1} ancestors={ancestors} />
@@ -369,53 +420,75 @@ function JSXElement({ element, indent, ancestors = [] }) {
 }
 
 function JSXProp({ name, value, indent, ancestors = [] }) {
-  if (typeof value === 'string') {
-    return <> <span className="tree-prop-name">{name}</span>=<span className="tree-string">"{escapeHtml(value)}"</span></>;
+  if (typeof value === "string") {
+    return (
+      <>
+        {" "}
+        <span className="tree-prop-name">{name}</span>=
+        <span className="tree-string">"{escapeHtml(value)}"</span>
+      </>
+    );
   }
   if (isReactElement(value)) {
-    const pad = '  '.repeat(indent);
-    const closePad = '  '.repeat(indent - 1);
+    const pad = "  ".repeat(indent);
+    const closePad = "  ".repeat(indent - 1);
     return (
       <>
-        {' '}<span className="tree-prop-name">{name}</span>={'{'}
-        {'\n'}{pad}<JSXValue value={value} indent={indent} ancestors={ancestors} />{'\n'}{closePad}
-        {'}'}
+        {" "}
+        <span className="tree-prop-name">{name}</span>={"{"}
+        {"\n"}
+        {pad}
+        <JSXValue value={value} indent={indent} ancestors={ancestors} />
+        {"\n"}
+        {closePad}
+        {"}"}
       </>
     );
   }
-  if (Array.isArray(value) && value.some(v => isReactElement(v))) {
-    const pad = '  '.repeat(indent);
-    const closePad = '  '.repeat(indent - 1);
+  if (Array.isArray(value) && value.some((v) => isReactElement(v))) {
+    const pad = "  ".repeat(indent);
+    const closePad = "  ".repeat(indent - 1);
     return (
       <>
-        {' '}<span className="tree-prop-name">{name}</span>={'{['}
-        {'\n'}
+        {" "}
+        <span className="tree-prop-name">{name}</span>={"{["}
+        {"\n"}
         {value.map((v, i) => (
           <React.Fragment key={i}>
-            {pad}<JSXValue value={v} indent={indent} ancestors={ancestors} />
-            {i < value.length - 1 ? ',' : ''}{'\n'}
+            {pad}
+            <JSXValue value={v} indent={indent} ancestors={ancestors} />
+            {i < value.length - 1 ? "," : ""}
+            {"\n"}
           </React.Fragment>
         ))}
-        {closePad}{']}'}
+        {closePad}
+        {"]}"}
       </>
     );
   }
-  return <> <span className="tree-prop-name">{name}</span>={'{'}<JSXValue value={value} indent={indent} ancestors={ancestors} />{'}'}</>;
+  return (
+    <>
+      {" "}
+      <span className="tree-prop-name">{name}</span>={"{"}
+      <JSXValue value={value} indent={indent} ancestors={ancestors} />
+      {"}"}
+    </>
+  );
 }
 
 function JSXChildren({ value, indent, ancestors = [] }) {
-  if (typeof value === 'string') return <>{escapeHtml(value)}</>;
-  if (typeof value === 'number') return <>{'{' + value + '}'}</>;
+  if (typeof value === "string") return <>{escapeHtml(value)}</>;
+  if (typeof value === "number") return <>{"{" + value + "}"}</>;
   if (Array.isArray(value)) {
-    const pad = '  '.repeat(indent);
-    const hasComplex = value.some(v => isReactElement(v));
+    const pad = "  ".repeat(indent);
+    const hasComplex = value.some((v) => isReactElement(v));
     if (hasComplex) {
       return (
         <>
           {value.map((child, i) => (
             <React.Fragment key={i}>
               <JSXChildren value={child} indent={indent} ancestors={ancestors} />
-              {i < value.length - 1 ? '\n' + pad : ''}
+              {i < value.length - 1 ? "\n" + pad : ""}
             </React.Fragment>
           ))}
         </>
@@ -438,7 +511,9 @@ export function FlightTreeView({ flightPromise }) {
   if (!flightPromise) {
     return (
       <div className="flight-tree">
-        <pre className="jsx-output"><PendingFallback /></pre>
+        <pre className="jsx-output">
+          <PendingFallback />
+        </pre>
       </div>
     );
   }

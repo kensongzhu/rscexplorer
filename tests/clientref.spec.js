@@ -1,6 +1,6 @@
-import { test, expect, beforeAll, afterAll, afterEach } from 'vitest';
-import { chromium } from 'playwright';
-import { createHelpers } from './helpers.js';
+import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
+import { chromium } from "playwright";
+import { createHelpers } from "./helpers.js";
 
 let browser, page, h;
 
@@ -18,12 +18,14 @@ afterEach(async () => {
   await h.checkNoRemainingSteps();
 });
 
-test('clientref sample - renders client module exports passed as props', async () => {
-  await h.load('clientref');
+test("clientref sample - renders client module exports passed as props", async () => {
+  await h.load("clientref");
 
   // Check flight rows include client references for themes
   const rows = await h.getRows();
-  expect(rows.some(r => r.text.includes('darkTheme') || r.text.includes('lightTheme'))).toBe(true);
+  expect(rows.some((r) => r.text.includes("darkTheme") || r.text.includes("lightTheme"))).toBe(
+    true,
+  );
 
   // Step to end - should show both themed boxes
   expect(await h.stepAll()).toMatchInlineSnapshot(`

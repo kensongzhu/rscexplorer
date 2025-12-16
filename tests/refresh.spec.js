@@ -1,6 +1,6 @@
-import { test, expect, beforeAll, afterAll, afterEach } from 'vitest';
-import { chromium } from 'playwright';
-import { createHelpers } from './helpers.js';
+import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
+import { chromium } from "playwright";
+import { createHelpers } from "./helpers.js";
 
 let browser, page, h;
 
@@ -18,8 +18,8 @@ afterEach(async () => {
   await h.checkNoRemainingSteps();
 });
 
-test('refresh sample - renders router with async content', async () => {
-  await h.load('refresh');
+test("refresh sample - renders router with async content", async () => {
+  await h.load("refresh");
 
   // Step to initial render (shows Pending)
   expect(await h.stepAll()).toMatchInlineSnapshot(`
@@ -33,7 +33,9 @@ test('refresh sample - renders router with async content', async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Router Refresh Client state persists across server navigations Loading..."`);
+  expect(await h.preview()).toMatchInlineSnapshot(
+    `"Router Refresh Client state persists across server navigations Loading..."`,
+  );
 
   // Step to resolve async Timer content (color is random hsl value)
   const tree = await h.stepAll();
@@ -42,8 +44,8 @@ test('refresh sample - renders router with async content', async () => {
 
   // Wait for preview to render the timer (shows "0s" or similar)
   await h.waitFor(
-    () => /\d+s/.test(document.querySelector('.preview-container')?.textContent || ''),
-    { timeout: 5000 }
+    () => /\d+s/.test(document.querySelector(".preview-container")?.textContent || ""),
+    { timeout: 5000 },
   );
   const preview = await h.preview();
   expect(preview).toMatch(/Router Refresh.*\d+s.*Refresh/);

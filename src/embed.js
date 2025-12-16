@@ -26,7 +26,7 @@
 
 // Get the embed URL relative to this script's location
 const getEmbedUrl = () => {
-  return new URL('embed.html', import.meta.url).href;
+  return new URL("embed.html", import.meta.url).href;
 };
 
 /**
@@ -38,10 +38,7 @@ const getEmbedUrl = () => {
  * @returns {Object} - Control object with methods to interact with the embed
  */
 export function mount(container, { server, client }) {
-  const el =
-    typeof container === "string"
-      ? document.querySelector(container)
-      : container;
+  const el = typeof container === "string" ? document.querySelector(container) : container;
 
   if (!el) {
     throw new Error(`RSC Explorer: Container not found: ${container}`);

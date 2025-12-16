@@ -11,8 +11,7 @@ function BuildSwitcher() {
     const newVersion = e.target.value;
     if (newVersion !== version) {
       const modePath = isDev ? "/dev" : "";
-      window.location.href =
-        `/${newVersion}${modePath}/` + window.location.search;
+      window.location.href = `/${newVersion}${modePath}/` + window.location.search;
     }
   };
 
@@ -27,11 +26,7 @@ function BuildSwitcher() {
   return (
     <div className="build-switcher">
       <label>React</label>
-      <select
-        value={version}
-        onChange={handleVersionChange}
-        disabled={isDisabled}
-      >
+      <select value={version} onChange={handleVersionChange} disabled={isDisabled}>
         {REACT_VERSIONS.map((v) => (
           <option key={v} value={v}>
             {v}
@@ -100,8 +95,7 @@ function EmbedModal({ code, onClose }) {
   const [copied, setCopied] = useState(false);
 
   const embedCode = useMemo(() => {
-    const base =
-      window.location.origin + window.location.pathname.replace(/\/$/, "");
+    const base = window.location.origin + window.location.pathname.replace(/\/$/, "");
     const id = Math.random().toString(36).slice(2, 6);
     return `<div id="rsc-${id}" style="height: 500px;"></div>
 <script type="module">
@@ -206,8 +200,7 @@ export function App() {
   const isDirty = currentSample
     ? liveCode.server !== SAMPLES[currentSample].server ||
       liveCode.client !== SAMPLES[currentSample].client
-    : liveCode.server !== initialCode.server ||
-      liveCode.client !== initialCode.client;
+    : liveCode.server !== initialCode.server || liveCode.client !== initialCode.client;
 
   const handleSampleChange = (e) => {
     const key = e.target.value;
@@ -239,12 +232,7 @@ export function App() {
               </option>
             ))}
           </select>
-          <button
-            className="save-btn"
-            onClick={handleSave}
-            disabled={!isDirty}
-            title="Save to URL"
-          >
+          <button className="save-btn" onClick={handleSave} disabled={!isDirty} title="Save to URL">
             <svg
               width="16"
               height="16"
@@ -258,11 +246,7 @@ export function App() {
               <polyline points="7 3 7 8 15 8" />
             </svg>
           </button>
-          <button
-            className="embed-btn"
-            onClick={() => setShowEmbedModal(true)}
-            title="Embed"
-          >
+          <button className="embed-btn" onClick={() => setShowEmbedModal(true)} title="Embed">
             <svg
               width="16"
               height="16"
@@ -303,14 +287,8 @@ export function App() {
         </div>
         <BuildSwitcher />
       </header>
-      <iframe
-        ref={iframeRef}
-        src="embed.html"
-        style={{ flex: 1, border: "none", width: "100%" }}
-      />
-      {showEmbedModal && (
-        <EmbedModal code={liveCode} onClose={() => setShowEmbedModal(false)} />
-      )}
+      <iframe ref={iframeRef} src="embed.html" style={{ flex: 1, border: "none", width: "100%" }} />
+      {showEmbedModal && <EmbedModal code={liveCode} onClose={() => setShowEmbedModal(false)} />}
     </>
   );
 }

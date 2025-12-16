@@ -1,4 +1,4 @@
-import { createFromReadableStream } from 'react-server-dom-webpack/client';
+import { createFromReadableStream } from "react-server-dom-webpack/client";
 
 /**
  * SteppableStream - makes a Flight stream steppable for debugging.
@@ -16,12 +16,14 @@ export class SteppableStream {
     const encoder = new TextEncoder();
     let controller;
     const output = new ReadableStream({
-      start: (c) => { controller = c; }
+      start: (c) => {
+        controller = c;
+      },
     });
 
     this.release = (count) => {
       while (this.releasedCount < count && this.releasedCount < this.rows.length) {
-        controller.enqueue(encoder.encode(this.rows[this.releasedCount] + '\n'));
+        controller.enqueue(encoder.encode(this.rows[this.releasedCount] + "\n"));
         this.releasedCount++;
       }
       if (this.releasedCount >= this.rows.length && this.buffered && !this.closed) {
@@ -37,7 +39,7 @@ export class SteppableStream {
   async buffer(stream) {
     const reader = stream.getReader();
     const decoder = new TextDecoder();
-    let partial = '';
+    let partial = "";
 
     try {
       while (true) {
@@ -45,7 +47,7 @@ export class SteppableStream {
         if (done) break;
 
         partial += decoder.decode(value, { stream: true });
-        const lines = partial.split('\n');
+        const lines = partial.split("\n");
         partial = lines.pop();
 
         for (const line of lines) {

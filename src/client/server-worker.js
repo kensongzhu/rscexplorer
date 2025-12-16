@@ -1,18 +1,20 @@
-import workerUrl from '../server/worker.js?rolldown-worker';
+import workerUrl from "../server/worker.js?rolldown-worker";
 
-const randomUUID = crypto.randomUUID?.bind(crypto) ?? function() {
-  const bytes = crypto.getRandomValues(new Uint8Array(16));
-  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
-  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 1
-  const hex = [...bytes].map(b => b.toString(16).padStart(2, '0'));
-  return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
-};
+const randomUUID =
+  crypto.randomUUID?.bind(crypto) ??
+  function () {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+    bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 1
+    const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0"));
+    return `${hex.slice(0, 4).join("")}-${hex.slice(4, 6).join("")}-${hex.slice(6, 8).join("")}-${hex.slice(8, 10).join("")}-${hex.slice(10).join("")}`;
+  };
 
 function serializeForTransfer(encoded) {
   if (encoded instanceof FormData) {
-    return { type: 'formdata', data: new URLSearchParams(encoded).toString() };
+    return { type: "formdata", data: new URLSearchParams(encoded).toString() };
   }
-  return { type: 'string', data: encoded };
+  return { type: "string", data: encoded };
 }
 
 export class ServerWorker {
@@ -20,7 +22,7 @@ export class ServerWorker {
     this.worker = new Worker(workerUrl);
     this.pending = new Map();
     this.streams = new Map();
-    this.readyPromise = new Promise(resolve => {
+    this.readyPromise = new Promise((resolve) => {
       this.readyResolve = resolve;
     });
 
@@ -31,32 +33,34 @@ export class ServerWorker {
   handleMessage(event) {
     const { type, requestId, error, chunk } = event.data;
 
-    if (type === 'ready') {
+    if (type === "ready") {
       this.readyResolve();
       return;
     }
 
-    if (type === 'stream-start') {
+    if (type === "stream-start") {
       const pending = this.pending.get(requestId);
       if (!pending) return;
       this.pending.delete(requestId);
 
       let controller;
       const stream = new ReadableStream({
-        start: (c) => { controller = c; }
+        start: (c) => {
+          controller = c;
+        },
       });
       this.streams.set(requestId, controller);
       pending.resolve(stream);
       return;
     }
 
-    if (type === 'stream-chunk') {
+    if (type === "stream-chunk") {
       const controller = this.streams.get(requestId);
       if (controller) controller.enqueue(chunk);
       return;
     }
 
-    if (type === 'stream-end') {
+    if (type === "stream-end") {
       const controller = this.streams.get(requestId);
       if (controller) {
         controller.close();
@@ -65,7 +69,7 @@ export class ServerWorker {
       return;
     }
 
-    if (type === 'stream-error') {
+    if (type === "stream-error") {
       const controller = this.streams.get(requestId);
       if (controller) {
         controller.error(new Error(error.message));
@@ -82,17 +86,17 @@ export class ServerWorker {
 
     this.pending.delete(requestId);
 
-    if (type === 'error') {
+    if (type === "error") {
       const err = new Error(error.message);
       err.stack = error.stack;
       pending.reject(err);
-    } else if (type === 'deployed') {
+    } else if (type === "deployed") {
       pending.resolve();
     }
   }
 
   handleError(event) {
-    const errorMsg = event.message || event.error?.message || 'Unknown worker error';
+    const errorMsg = event.message || event.error?.message || "Unknown worker error";
     console.error(`Worker error: ${errorMsg}`);
 
     for (const [, pending] of this.pending) {
@@ -108,7 +112,7 @@ export class ServerWorker {
     return new Promise((resolve, reject) => {
       this.pending.set(requestId, { resolve, reject });
       this.worker.postMessage({
-        type: 'deploy',
+        type: "deploy",
         requestId,
         compiledCode,
         manifest,
@@ -123,7 +127,7 @@ export class ServerWorker {
 
     return new Promise((resolve, reject) => {
       this.pending.set(requestId, { resolve, reject });
-      this.worker.postMessage({ type: 'render', requestId });
+      this.worker.postMessage({ type: "render", requestId });
     });
   }
 
@@ -134,7 +138,7 @@ export class ServerWorker {
     return new Promise((resolve, reject) => {
       this.pending.set(requestId, { resolve, reject });
       this.worker.postMessage({
-        type: 'action',
+        type: "action",
         requestId,
         actionId,
         encodedArgs: serializeForTransfer(encodedArgs),
@@ -149,10 +153,10 @@ export class ServerWorker {
     return new Promise((resolve, reject) => {
       this.pending.set(requestId, { resolve, reject });
       this.worker.postMessage({
-        type: 'action',
+        type: "action",
         requestId,
         actionId,
-        encodedArgs: { type: 'formdata', data: rawPayload },
+        encodedArgs: { type: "formdata", data: rawPayload },
       });
     });
   }
@@ -160,11 +164,11 @@ export class ServerWorker {
   terminate() {
     this.worker.terminate();
     for (const [, pending] of this.pending) {
-      pending.reject(new Error('Worker terminated'));
+      pending.reject(new Error("Worker terminated"));
     }
     this.pending.clear();
     for (const [, controller] of this.streams) {
-      controller.error(new Error('Worker terminated'));
+      controller.error(new Error("Worker terminated"));
     }
     this.streams.clear();
   }

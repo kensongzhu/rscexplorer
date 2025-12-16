@@ -1,11 +1,21 @@
-import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from 'react';
-import { encodeReply } from 'react-server-dom-webpack/client';
-import { Timeline, SteppableStream, registerClientModule, evaluateClientModule } from '../runtime/index.js';
-import { ServerWorker } from '../server-worker.js';
-import { parseClientModule, parseServerActions, compileToCommonJS, buildManifest } from '../../shared/compiler.js';
-import { CodeEditor } from './CodeEditor.jsx';
-import { FlightLog } from './FlightLog.jsx';
-import { LivePreview } from './LivePreview.jsx';
+import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
+import { encodeReply } from "react-server-dom-webpack/client";
+import {
+  Timeline,
+  SteppableStream,
+  registerClientModule,
+  evaluateClientModule,
+} from "../runtime/index.js";
+import { ServerWorker } from "../server-worker.js";
+import {
+  parseClientModule,
+  parseServerActions,
+  compileToCommonJS,
+  buildManifest,
+} from "../../shared/compiler.js";
+import { CodeEditor } from "./CodeEditor.jsx";
+import { FlightLog } from "./FlightLog.jsx";
+import { LivePreview } from "./LivePreview.jsx";
 
 export function Workspace({ initialServerCode, initialClientCode, onCodeChange }) {
   const [serverCode, setServerCode] = useState(initialServerCode);
@@ -44,69 +54,77 @@ export function Workspace({ initialServerCode, initialClientCode, onCodeChange }
     timeline.skipToEntryEnd();
   }, [timeline]);
 
-  const handleAddRawAction = useCallback(async (actionName, rawPayload) => {
-    try {
-      const responseRaw = await serverWorker.callActionRaw(actionName, rawPayload);
-      const stream = new SteppableStream(responseRaw, { callServer: callServerRef.current });
-      await stream.waitForBuffer();
-      timeline.addAction(actionName, rawPayload, stream);
-    } catch (err) {
-      console.error('[raw action] Failed:', err);
-    }
-  }, [serverWorker, timeline, callServerRef]);
+  const handleAddRawAction = useCallback(
+    async (actionName, rawPayload) => {
+      try {
+        const responseRaw = await serverWorker.callActionRaw(actionName, rawPayload);
+        const stream = new SteppableStream(responseRaw, { callServer: callServerRef.current });
+        await stream.waitForBuffer();
+        timeline.addAction(actionName, rawPayload, stream);
+      } catch (err) {
+        console.error("[raw action] Failed:", err);
+      }
+    },
+    [serverWorker, timeline, callServerRef],
+  );
 
-  const compile = useCallback(async (sCode, cCode) => {
-    try {
-      setError(null);
-      timeline.clear();
+  const compile = useCallback(
+    async (sCode, cCode) => {
+      try {
+        setError(null);
+        timeline.clear();
 
-      const clientExports = parseClientModule(cCode);
-      const manifest = buildManifest('client', clientExports);
-      const compiledClient = compileToCommonJS(cCode);
-      const clientModule = evaluateClientModule(compiledClient);
-      registerClientModule('client', clientModule);
+        const clientExports = parseClientModule(cCode);
+        const manifest = buildManifest("client", clientExports);
+        const compiledClient = compileToCommonJS(cCode);
+        const clientModule = evaluateClientModule(compiledClient);
+        registerClientModule("client", clientModule);
 
-      const actionNames = parseServerActions(sCode);
-      const compiledServer = compileToCommonJS(sCode);
-      setAvailableActions(actionNames);
+        const actionNames = parseServerActions(sCode);
+        const compiledServer = compileToCommonJS(sCode);
+        setAvailableActions(actionNames);
 
-      await serverWorker.deploy({
-        compiledCode: compiledServer,
-        manifest,
-        actionNames,
-      });
+        await serverWorker.deploy({
+          compiledCode: compiledServer,
+          manifest,
+          actionNames,
+        });
 
-      const callServer = actionNames.length > 0
-        ? async (actionId, args) => {
-            const actionName = actionId.split('#')[0];
-            const encodedArgs = await encodeReply(args);
-            const argsDisplay = typeof encodedArgs === 'string'
-              ? `0=${encodedArgs}`
-              : new URLSearchParams(encodedArgs).toString();
+        const callServer =
+          actionNames.length > 0
+            ? async (actionId, args) => {
+                const actionName = actionId.split("#")[0];
+                const encodedArgs = await encodeReply(args);
+                const argsDisplay =
+                  typeof encodedArgs === "string"
+                    ? `0=${encodedArgs}`
+                    : new URLSearchParams(encodedArgs).toString();
 
-            const responseRaw = await serverWorker.callAction(actionName, encodedArgs);
-            const stream = new SteppableStream(responseRaw, { callServer });
-            await stream.waitForBuffer();
-            timeline.addAction(actionName, argsDisplay, stream);
-            return stream.flightPromise;
-          }
-        : null;
+                const responseRaw = await serverWorker.callAction(actionName, encodedArgs);
+                const stream = new SteppableStream(responseRaw, { callServer });
+                await stream.waitForBuffer();
+                timeline.addAction(actionName, argsDisplay, stream);
+                return stream.flightPromise;
+              }
+            : null;
 
-      callServerRef.current = callServer;
+        callServerRef.current = callServer;
 
-      const renderRaw = await serverWorker.render();
-      const renderStream = new SteppableStream(renderRaw, { callServer });
-      await renderStream.waitForBuffer();
+        const renderRaw = await serverWorker.render();
+        const renderStream = new SteppableStream(renderRaw, { callServer });
+        await renderStream.waitForBuffer();
 
-      timeline.setRender(renderStream);
-      setClientModuleReady(true);
-    } catch (err) {
-      console.error('[compile] Error:', err);
-      setError(err.message || String(err));
-      timeline.clear();
-      setClientModuleReady(false);
-    }
-  }, [timeline, serverWorker, callServerRef]);
+        timeline.setRender(renderStream);
+        setClientModuleReady(true);
+      } catch (err) {
+        console.error("[compile] Error:", err);
+        setError(err.message || String(err));
+        timeline.clear();
+        setClientModuleReady(false);
+      }
+    },
+    [timeline, serverWorker, callServerRef],
+  );
 
   const handleReset = useCallback(() => {
     compile(serverCode, clientCode);
