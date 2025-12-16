@@ -1,11 +1,10 @@
 import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { chromium } from "playwright";
-import { createHelpers } from "./helpers.js";
+import { createHelpers, launchBrowser } from "./helpers.js";
 
 let browser, page, h;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
   page = await browser.newPage();
   h = createHelpers(page);
 });
@@ -32,7 +31,13 @@ test("pagination sample", async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Pagination Loading recipes..."`);
+  expect(await h.preview("Loading recipes")).toMatchInlineSnapshot(
+    `
+    "Pagination
+
+    Loading recipes..."
+  `,
+  );
 
   // Then resolves to Paginator with initial items
   expect(await h.stepAll()).toMatchInlineSnapshot(`
@@ -76,12 +81,36 @@ test("pagination sample", async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Pagination Loading recipes..."`);
+  expect(await h.preview("Grilled Cheese")).toMatchInlineSnapshot(
+    `
+    "Pagination
+    Pasta Carbonara
+
+    25 min · Medium
+
+    Grilled Cheese
+
+    10 min · Easy
+
+    Load More"
+  `,
+  );
 
   // First Load More
   await h.frame().locator(".preview-container button").click();
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Pagination Pasta Carbonara 25 min · Medium Grilled Cheese 10 min · Easy Loading..."`,
+  expect(await h.preview("Loading...")).toMatchInlineSnapshot(
+    `
+    "Pagination
+    Pasta Carbonara
+
+    25 min · Medium
+
+    Grilled Cheese
+
+    10 min · Easy
+
+    Loading..."
+  `,
   );
 
   // Action returns new items
@@ -123,14 +152,52 @@ test("pagination sample", async () => {
       hasMore: true
     }"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Pagination Pasta Carbonara 25 min · Medium Grilled Cheese 10 min · Easy Chicken Stir Fry 20 min · Easy Beef Tacos 30 min · Medium Load More"`,
+  expect(await h.preview("Beef Tacos")).toMatchInlineSnapshot(
+    `
+    "Pagination
+    Pasta Carbonara
+
+    25 min · Medium
+
+    Grilled Cheese
+
+    10 min · Easy
+
+    Chicken Stir Fry
+
+    20 min · Easy
+
+    Beef Tacos
+
+    30 min · Medium
+
+    Load More"
+  `,
   );
 
   // Second Load More
   await h.frame().locator(".preview-container button").click();
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Pagination Pasta Carbonara 25 min · Medium Grilled Cheese 10 min · Easy Chicken Stir Fry 20 min · Easy Beef Tacos 30 min · Medium Loading..."`,
+  expect(await h.preview("Loading...")).toMatchInlineSnapshot(
+    `
+    "Pagination
+    Pasta Carbonara
+
+    25 min · Medium
+
+    Grilled Cheese
+
+    10 min · Easy
+
+    Chicken Stir Fry
+
+    20 min · Easy
+
+    Beef Tacos
+
+    30 min · Medium
+
+    Loading..."
+  `,
   );
 
   // Final items, hasMore: false
@@ -172,8 +239,33 @@ test("pagination sample", async () => {
       hasMore: false
     }"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Pagination Pasta Carbonara 25 min · Medium Grilled Cheese 10 min · Easy Chicken Stir Fry 20 min · Easy Beef Tacos 30 min · Medium Caesar Salad 15 min · Easy Mushroom Risotto 45 min · Hard"`,
+  expect(await h.preview("Mushroom Risotto")).toMatchInlineSnapshot(
+    `
+    "Pagination
+    Pasta Carbonara
+
+    25 min · Medium
+
+    Grilled Cheese
+
+    10 min · Easy
+
+    Chicken Stir Fry
+
+    20 min · Easy
+
+    Beef Tacos
+
+    30 min · Medium
+
+    Caesar Salad
+
+    15 min · Easy
+
+    Mushroom Risotto
+
+    45 min · Hard"
+  `,
   );
 
   // No more items - button should be gone

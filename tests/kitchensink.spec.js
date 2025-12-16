@@ -1,11 +1,10 @@
 import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { chromium } from "playwright";
-import { createHelpers } from "./helpers.js";
+import { createHelpers, launchBrowser } from "./helpers.js";
 
 let browser, page, h;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
   page = await browser.newPage();
   h = createHelpers(page);
 });
@@ -36,7 +35,11 @@ test("kitchensink sample - renders all RSC protocol types", async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Kitchen Sink Loading..."`);
+  expect(await h.preview("Loading...")).toMatchInlineSnapshot(`
+    "Kitchen Sink
+
+    Loading..."
+  `);
 
   // Step to resolve async content (with delayed promise still pending)
   expect(await h.stepAll()).toMatchInlineSnapshot(`
@@ -133,7 +136,11 @@ test("kitchensink sample - renders all RSC protocol types", async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Kitchen Sink Loading..."`);
+  expect(await h.preview("Loading...")).toMatchInlineSnapshot(`
+    "Kitchen Sink
+
+    Loading..."
+  `);
 
   // Step to resolve delayed promise
   expect(await h.stepAll()).toMatchInlineSnapshot(`
@@ -230,5 +237,54 @@ test("kitchensink sample - renders all RSC protocol types", async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Kitchen Sink Loading..."`);
+  expect(await h.preview("hello world")).toMatchInlineSnapshot(
+    `
+    "Kitchen Sink
+    primitives
+    null: null
+    true: true
+    false: false
+    int: 42
+    float: 3.14159
+    string: hello world
+    empty:
+    dollar: $special
+    unicode: Hello 世界 🌍
+    special
+    negZero: 0
+    inf: Infinity
+    negInf: -Infinity
+    nan: NaN
+    types
+    date: 2024-01-15T12:00:00.000Z
+    bigint: 12345678901234567890n
+    symbol: Symbol(mySymbol)
+    collections
+    map: Map(2)
+    set: Set(3)
+    formData: FormData
+    blob: Blob(5)
+    arrays
+    simple: [3 items]
+    sparse: [4 items]
+    nested: [2 items]
+    objects
+    simple: {...}
+    nested: {...}
+    elements
+    div: {...}
+    fragment: [2 items]
+    suspense: {...}
+    promises
+    resolved: {...}
+    delayed: {...}
+    iterators
+    sync: {...}
+    refs
+    dup: {...}
+    cyclic: {...}
+    action
+    Call serverAction"
+  `,
+  );
 });

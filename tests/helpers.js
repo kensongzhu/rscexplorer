@@ -1,4 +1,10 @@
 import { expect } from "vitest";
+import { chromium } from "playwright";
+
+export async function launchBrowser() {
+  const executablePath = process.env.CHROMIUM_PATH;
+  return chromium.launch(executablePath ? { executablePath } : undefined);
+}
 
 let prevRowTexts = [];
 let prevStatuses = [];
@@ -25,7 +31,7 @@ export function createHelpers(page) {
   }
 
   async function getPreviewText() {
-    return (await frameRef.locator(".preview-container").innerText()).trim().replace(/\s+/g, " ");
+    return (await frameRef.locator(".preview-container").innerText()).trim();
   }
 
   async function doStep() {
@@ -130,7 +136,11 @@ export function createHelpers(page) {
     return await tree();
   }
 
-  async function preview() {
+  async function preview(waitFor) {
+    if (waitFor) {
+      // Wait for preview to contain the marker
+      await expect.poll(() => getPreviewText(), { timeout: 10000 }).toContain(waitFor);
+    }
     const current = await getPreviewText();
     if (current !== prevPreview) {
       prevPreview = current;

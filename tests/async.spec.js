@@ -1,11 +1,10 @@
 import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { chromium } from "playwright";
-import { createHelpers } from "./helpers.js";
+import { createHelpers, launchBrowser } from "./helpers.js";
 
 let browser, page, h;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
   page = await browser.newPage();
   h = createHelpers(page);
 });
@@ -32,7 +31,11 @@ test("async sample", async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Async Component Loading..."`);
+  expect(await h.preview("Loading")).toMatchInlineSnapshot(`
+    "Async Component
+
+    Loading..."
+  `);
 
   // Tree changes when async data resolves
   expect(await h.stepAll()).toMatchInlineSnapshot(`
@@ -45,5 +48,9 @@ test("async sample", async () => {
       </Suspense>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Async Component Loading..."`);
+  expect(await h.preview("Data loaded")).toMatchInlineSnapshot(`
+    "Async Component
+
+    Data loaded!"
+  `);
 });

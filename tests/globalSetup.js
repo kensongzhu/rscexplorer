@@ -1,37 +1,39 @@
-import { spawn, execSync } from "child_process";
+import { spawn } from "child_process";
 
-let devServer;
+let server;
+
+async function waitForServer(url, timeout = 30000) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return;
+    } catch {
+      // Server not ready yet
+    }
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  throw new Error("Test server start timeout");
+}
 
 export async function setup() {
-  await new Promise((resolve, reject) => {
-    devServer = spawn("npm", ["run", "dev", "--", "--port", "5599"], {
-      stdio: ["ignore", "pipe", "pipe"],
-      detached: false,
-    });
-
-    devServer.stdout.on("data", (data) => {
-      if (data.toString().includes("Local:")) {
-        resolve();
-      }
-    });
-
-    devServer.stderr.on("data", (data) => {
-      console.error(data.toString());
-    });
-
-    devServer.on("error", reject);
-
-    // Timeout after 30s
-    setTimeout(() => reject(new Error("Dev server failed to start")), 30000);
+  server = spawn("npx", ["vite", "--port", "5599", "--strictPort"], {
+    stdio: "inherit",
+    shell: true,
   });
+
+  server.on("close", (code) => {
+    if (code === 1) {
+      console.error("\n\x1b[31mTest server failed to start (port 5599 in use?)\x1b[0m\n");
+      process.exit(1);
+    }
+  });
+
+  await waitForServer("http://localhost:5599");
 }
 
 export async function teardown() {
-  if (devServer) {
-    devServer.kill("SIGTERM");
-    // Also kill any process on the port
-    try {
-      execSync("lsof -ti:5599 | xargs kill -9 2>/dev/null || true");
-    } catch {}
+  if (server) {
+    server.kill();
   }
 }

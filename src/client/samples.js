@@ -248,7 +248,7 @@ export function Timer({ color }) {
       borderRadius: 8,
       textAlign: 'center'
     }}>
-      <p style={{ fontFamily: 'monospace', fontSize: 32, margin: 0 }}>{seconds}s</p>
+      <p style={{ fontFamily: 'monospace', fontSize: 32, margin: 0 }}>Timer: {seconds}s</p>
     </div>
   )
 }

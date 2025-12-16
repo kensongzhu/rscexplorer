@@ -1,11 +1,10 @@
 import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { chromium } from "playwright";
-import { createHelpers } from "./helpers.js";
+import { createHelpers, launchBrowser } from "./helpers.js";
 
 let browser, page, h;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
   page = await browser.newPage();
   h = createHelpers(page);
 });
@@ -27,14 +26,27 @@ test("form sample", async () => {
       <Form greetAction={[Function: greet]} />
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Form Action Greet"`);
+  expect(await h.preview("Greet")).toMatchInlineSnapshot(`
+    "Form Action
+    Greet"
+  `);
 
   // Submit form
   await h.frame().locator('.preview-container input[name="name"]').fill("World");
   await h.frame().locator(".preview-container button").click();
-  expect(await h.preview()).toMatchInlineSnapshot(`"Form Action Sending..."`);
+  expect(await h.preview("Sending")).toMatchInlineSnapshot(`
+    "Form Action
+    Sending..."
+  `);
 
   // Action response
   expect(await h.stepAll()).toMatchInlineSnapshot(`"{ message: "Hello, World!", error: null }"`);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Form Action Greet Hello, World!"`);
+  expect(await h.preview("Hello, World")).toMatchInlineSnapshot(
+    `
+    "Form Action
+    Greet
+
+    Hello, World!"
+  `,
+  );
 });

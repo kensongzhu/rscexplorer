@@ -1,11 +1,10 @@
 import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { chromium } from "playwright";
-import { createHelpers } from "./helpers.js";
+import { createHelpers, launchBrowser } from "./helpers.js";
 
 let browser, page, h;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
   page = await browser.newPage();
   h = createHelpers(page);
 });
@@ -31,8 +30,16 @@ test("bound sample - renders bound actions with different greetings", async () =
       <Greeter action={[Function: bound greet]} />
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Bound Actions Same action, different bound greetings: Greet Greet Greet"`,
+  expect(await h.preview("bound greetings")).toMatchInlineSnapshot(
+    `
+    "Bound Actions
+
+    Same action, different bound greetings:
+
+    Greet
+    Greet
+    Greet"
+  `,
   );
 });
 
@@ -49,8 +56,16 @@ test("bound sample - three concurrent actions", async () => {
       <Greeter action={[Function: bound greet]} />
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Bound Actions Same action, different bound greetings: Greet Greet Greet"`,
+  expect(await h.preview("bound greetings")).toMatchInlineSnapshot(
+    `
+    "Bound Actions
+
+    Same action, different bound greetings:
+
+    Greet
+    Greet
+    Greet"
+  `,
   );
 
   // Fill all three inputs and submit all three forms
@@ -67,25 +82,57 @@ test("bound sample - three concurrent actions", async () => {
 
   // First action pending
   expect(await h.stepAll()).toMatchInlineSnapshot(`"Pending"`);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Bound Actions Same action, different bound greetings: Greet Greet Greet"`,
+  expect(await h.preview("bound greetings")).toMatchInlineSnapshot(
+    `
+    "Bound Actions
+
+    Same action, different bound greetings:
+
+    Greet
+    Greet
+    Greet"
+  `,
   );
 
   // First action resolves - Hello greeting (second still pending)
   expect(await h.stepAll()).toMatchInlineSnapshot(`"Pending"`);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Bound Actions Same action, different bound greetings: GreetHello, Alice! Greet Greet"`,
+  expect(await h.preview("Hello, Alice")).toMatchInlineSnapshot(
+    `
+    "Bound Actions
+
+    Same action, different bound greetings:
+
+    GreetHello, Alice!
+    Greet
+    Greet"
+  `,
   );
 
   // Second action resolves - Howdy greeting (third still pending)
   expect(await h.stepAll()).toMatchInlineSnapshot(`"Pending"`);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Bound Actions Same action, different bound greetings: GreetHello, Alice! GreetHowdy, Bob! Greet"`,
+  expect(await h.preview("Howdy, Bob")).toMatchInlineSnapshot(
+    `
+    "Bound Actions
+
+    Same action, different bound greetings:
+
+    GreetHello, Alice!
+    GreetHowdy, Bob!
+    Greet"
+  `,
   );
 
   // Third action resolves - Hey greeting
   expect(await h.stepAll()).toMatchInlineSnapshot(`""Hey, Charlie!""`);
-  expect(await h.preview()).toMatchInlineSnapshot(
-    `"Bound Actions Same action, different bound greetings: GreetHello, Alice! GreetHowdy, Bob! GreetHey, Charlie!"`,
+  expect(await h.preview("Hey, Charlie")).toMatchInlineSnapshot(
+    `
+    "Bound Actions
+
+    Same action, different bound greetings:
+
+    GreetHello, Alice!
+    GreetHowdy, Bob!
+    GreetHey, Charlie!"
+  `,
   );
 });

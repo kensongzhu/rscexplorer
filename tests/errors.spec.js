@@ -1,11 +1,10 @@
 import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { chromium } from "playwright";
-import { createHelpers } from "./helpers.js";
+import { createHelpers, launchBrowser } from "./helpers.js";
 
 let browser, page, h;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
   page = await browser.newPage();
   h = createHelpers(page);
 });
@@ -44,7 +43,11 @@ test("errors sample - error boundary catches thrown error", async () => {
       </ErrorBoundary>
     </div>"
   `);
-  expect(await h.preview()).toContain("Error Handling");
+  expect(await h.preview("Loading user")).toMatchInlineSnapshot(`
+    "Error Handling
+
+    Loading user..."
+  `);
 
   // After async resolves with error, error boundary catches it
   expect(await h.stepAll()).toMatchInlineSnapshot(`
@@ -69,6 +72,12 @@ test("errors sample - error boundary catches thrown error", async () => {
       </ErrorBoundary>
     </div>"
   `);
-  expect(await h.preview()).toContain("Failed to load user");
-  expect(await h.preview()).toContain("Please try again later");
+  expect(await h.preview("Failed to load user")).toMatchInlineSnapshot(
+    `
+    "Error Handling
+    Failed to load user
+
+    Please try again later."
+  `,
+  );
 });

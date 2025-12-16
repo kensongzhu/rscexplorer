@@ -1,11 +1,10 @@
 import { test, expect, beforeAll, afterAll, afterEach } from "vitest";
-import { chromium } from "playwright";
-import { createHelpers } from "./helpers.js";
+import { createHelpers, launchBrowser } from "./helpers.js";
 
 let browser, page, h;
 
 beforeAll(async () => {
-  browser = await chromium.launch();
+  browser = await launchBrowser();
   page = await browser.newPage();
   h = createHelpers(page);
 });
@@ -37,5 +36,11 @@ test("clientref sample - renders client module exports passed as props", async (
       </div>
     </div>"
   `);
-  expect(await h.preview()).toMatchInlineSnapshot(`"Client Reference Dark theme Light theme"`);
+  expect(await h.preview("Dark theme")).toMatchInlineSnapshot(
+    `
+    "Client Reference
+    Dark theme
+    Light theme"
+  `,
+  );
 });
