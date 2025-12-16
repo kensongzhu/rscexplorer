@@ -1,6 +1,6 @@
 # RSC Explorer
 
-A tool for educators and thinkerers curious about the React Server Components (RSC) protocol.
+A tool for educators and tinkerers curious about the React Server Components (RSC) protocol.
 
 [RSC Explorer](https://rscexplorer.dev/) runs both the Server and the Client parts of RSC in the browser.
 
