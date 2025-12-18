@@ -44,7 +44,7 @@ export function createHelpers(page: Page): TestHelpers {
     const iframe = page.frameLocator("iframe");
     frameRef = iframe;
     // Wait for content inside iframe
-    await iframe.locator(".log-entry").first().waitFor({ timeout: 10000 });
+    await iframe.getByTestId("flight-entry").first().waitFor({ timeout: 10000 });
     await page.waitForTimeout(100);
     prevRowTexts = [];
     prevStatuses = [];
@@ -54,12 +54,17 @@ export function createHelpers(page: Page): TestHelpers {
 
   async function getPreviewText(): Promise<string> {
     if (!frameRef) throw new Error("frameRef not initialized");
-    return (await frameRef.locator(".preview-container").innerText()).trim();
+    return (await frameRef.getByTestId("preview-container").innerText()).trim();
+  }
+
+  function getStepButton() {
+    if (!frameRef) throw new Error("frameRef not initialized");
+    return frameRef.getByRole("button", { name: "Step forward" });
   }
 
   async function doStep(): Promise<string | null> {
     if (!frameRef || !pageRef) throw new Error("refs not initialized");
-    const btn = frameRef.locator(".control-btn").nth(2);
+    const btn = getStepButton();
     if (await btn.isDisabled()) return null;
     await btn.click();
     await pageRef.waitForTimeout(50);
@@ -107,7 +112,7 @@ export function createHelpers(page: Page): TestHelpers {
 
   async function waitForStepButton(): Promise<void> {
     if (!frameRef || !pageRef) throw new Error("refs not initialized");
-    const btn = frameRef.locator(".control-btn").nth(2);
+    const btn = getStepButton();
     // Wait for button to be enabled
     await expect
       .poll(
@@ -176,47 +181,61 @@ export function createHelpers(page: Page): TestHelpers {
 
   async function stepInfo(): Promise<string> {
     if (!frameRef) throw new Error("frameRef not initialized");
-    return (await frameRef.locator(".step-info").innerText()).trim();
+    return (await frameRef.getByTestId("step-info").innerText()).trim();
   }
 
   async function getRows(): Promise<RowData[]> {
     if (!frameRef) throw new Error("frameRef not initialized");
-    return frameRef.locator(".flight-line").evaluateAll((els) =>
-      (els as HTMLElement[])
-        .map((el) => ({
-          text: el.textContent,
-          status: el.classList.contains("line-done")
-            ? ("done" as const)
-            : el.classList.contains("line-next")
-              ? ("next" as const)
-              : ("pending" as const),
-        }))
-        .filter(
-          ({ text }) =>
-            text !== null &&
-            !text.startsWith(":N") &&
-            !/^\w+:D/.test(text) &&
-            !/^\w+:\{.*"name"/.test(text) &&
-            !/^\w+:\[\[/.test(text),
-        ),
-    );
+    // Get all flight lines and determine status by aria-current and position
+    return frameRef.getByTestId("flight-line").evaluateAll((els) => {
+      const result: { text: string | null; status: "done" | "next" | "pending" }[] = [];
+      let foundCurrent = false;
+
+      for (const el of els as HTMLElement[]) {
+        const text = el.textContent;
+        const isCurrent = el.getAttribute("aria-current") === "step";
+
+        let status: "done" | "next" | "pending";
+        if (isCurrent) {
+          status = "next";
+          foundCurrent = true;
+        } else if (foundCurrent) {
+          status = "pending";
+        } else {
+          status = "done";
+        }
+
+        // Filter out certain protocol lines
+        if (
+          text !== null &&
+          !text.startsWith(":N") &&
+          !/^\w+:D/.test(text) &&
+          !/^\w+:\{.*"name"/.test(text) &&
+          !/^\w+:\[\[/.test(text)
+        ) {
+          result.push({ text, status });
+        }
+      }
+
+      return result;
+    });
   }
 
   async function tree(): Promise<string | null> {
     if (!frameRef) throw new Error("frameRef not initialized");
-    // Find the log entry containing the "next" line, or the last done entry
-    const treeText = await frameRef.locator(".log-entry").evaluateAll((entries) => {
-      const nextLine = document.querySelector(".line-next");
-      if (nextLine) {
-        const entry = nextLine.closest(".log-entry");
-        const tree = entry?.querySelector(".log-entry-tree") as HTMLElement | null;
+    // Find the tree in the entry containing the current line, or the last entry's tree
+    const treeText = await frameRef.getByTestId("flight-entry").evaluateAll((entries) => {
+      const currentLine = document.querySelector('[aria-current="step"]');
+      if (currentLine) {
+        const entry = currentLine.closest('[data-testid="flight-entry"]');
+        const tree = entry?.querySelector('[data-testid="flight-tree"]') as HTMLElement | null;
         return tree?.innerText?.trim() || null;
       }
-      // No next line - get the last entry's tree
+      // No current line - get the last entry's tree
       if (entries.length === 0) return null;
       const lastEntry = entries[entries.length - 1] as HTMLElement | undefined;
       if (!lastEntry) return null;
-      const tree = lastEntry.querySelector(".log-entry-tree") as HTMLElement | null;
+      const tree = lastEntry.querySelector('[data-testid="flight-tree"]') as HTMLElement | null;
       return tree?.innerText?.trim() || null;
     });
     return treeText;
@@ -229,7 +248,7 @@ export function createHelpers(page: Page): TestHelpers {
 
     // Consume remaining steps, but fail if tree or preview changes
     while (true) {
-      const btn = frameRef.locator(".control-btn").nth(2);
+      const btn = getStepButton();
       if (await btn.isDisabled()) break;
 
       await btn.click();

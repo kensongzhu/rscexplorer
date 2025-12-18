@@ -19,19 +19,21 @@
   background: transparent;
   border: none;
   color: var(--text);
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.1s;
+  transition:
+    background-color 0.1s,
+    color 0.1s;
 }
 
 .LivePreview-controlBtn svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
 .LivePreview-controlBtn:hover:not(:disabled) {
@@ -117,6 +119,7 @@
   font-family: var(--font-mono);
   min-width: 60px;
   text-align: right;
+  white-space: nowrap;
 }
 
 .LivePreview-container {
@@ -177,43 +180,29 @@
 /* Responsive */
 
 @media (max-width: 768px) {
-  .LivePreview-playback {
-    padding: 6px 8px;
-    gap: 6px;
-  }
-
-  .LivePreview-controls {
-    gap: 2px;
-  }
-
-  .LivePreview-controlBtn {
-    width: 26px;
-    height: 26px;
-  }
-
-  .LivePreview-stepInfo {
-    min-width: 50px;
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .LivePreview-stepInfo {
+  .LivePreview-slider {
     display: none;
   }
 
+  .LivePreview-stepInfo {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
   .LivePreview-playback {
-    padding: 4px 6px;
-    gap: 4px;
+    padding: 6px;
+  }
+
+  .LivePreview-controls {
+    flex: 1;
+    justify-content: space-between;
+    gap: 0;
   }
 
   .LivePreview-controlBtn {
-    width: 24px;
-    height: 24px;
-  }
-
-  .LivePreview-controlBtn svg {
-    width: 14px;
-    height: 14px;
+    flex: 1;
+    width: auto;
+    max-width: 44px;
   }
 }

@@ -42,18 +42,23 @@ function RenderLogView({ entry, cursor }: RenderLogViewProps): React.ReactElemen
       <div className="FlightLog-renderView-split">
         <div className="FlightLog-linesWrapper">
           <pre className="FlightLog-lines">
-            {rows.map((line, i) => (
-              <span
-                key={i}
-                ref={i === nextLineIndex ? activeRef : null}
-                className={`FlightLog-line ${getLineClass(i)}`}
-              >
-                {escapeHtml(line)}
-              </span>
-            ))}
+            {rows.map((line, i) => {
+              const isCurrent = i === nextLineIndex;
+              return (
+                <span
+                  key={i}
+                  ref={isCurrent ? activeRef : null}
+                  className={`FlightLog-line ${getLineClass(i)}`}
+                  data-testid="flight-line"
+                  aria-current={isCurrent ? "step" : undefined}
+                >
+                  {escapeHtml(line)}
+                </span>
+              );
+            })}
           </pre>
         </div>
-        <div className="FlightLog-tree">
+        <div className="FlightLog-tree" data-testid="flight-tree">
           {showTree && <FlightTreeView flightPromise={flightPromise ?? null} inEntry />}
         </div>
       </div>
@@ -81,7 +86,7 @@ function FlightLogEntry({
       : "FlightLog-entry--pending";
 
   return (
-    <div className={`FlightLog-entry ${modifierClass}`}>
+    <div className={`FlightLog-entry ${modifierClass}`} data-testid="flight-entry">
       <div className="FlightLog-entry-header">
         <span className="FlightLog-entry-label">
           {entry.type === "render" ? "Render" : `Action: ${entry.name}`}

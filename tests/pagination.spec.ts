@@ -100,7 +100,7 @@ test("pagination sample", async () => {
   );
 
   // First Load More
-  await h.frame().locator(".preview-container button").click();
+  await h.frame().getByTestId("preview-container").locator("button").click();
   expect(await h.preview("Loading...")).toMatchInlineSnapshot(
     `
     "Pagination
@@ -179,7 +179,7 @@ test("pagination sample", async () => {
   );
 
   // Second Load More
-  await h.frame().locator(".preview-container button").click();
+  await h.frame().getByTestId("preview-container").locator("button").click();
   expect(await h.preview("Loading...")).toMatchInlineSnapshot(
     `
     "Pagination
@@ -272,5 +272,7 @@ test("pagination sample", async () => {
   );
 
   // No more items - button should be gone
-  expect(await h.frame().locator(".preview-container button").isVisible()).toBe(false);
+  expect(await h.frame().getByTestId("preview-container").locator("button").isVisible()).toBe(
+    false,
+  );
 });

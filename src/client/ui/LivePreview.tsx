@@ -114,14 +114,15 @@ export function LivePreview({
   return (
     <Pane label="preview">
       <div className="LivePreview-playback">
-        <div className="LivePreview-controls">
+        <div className="LivePreview-controls" role="toolbar" aria-label="Playback controls">
           <button
             className="LivePreview-controlBtn"
             onClick={handleReset}
             disabled={isLoading || isAtStart}
+            aria-label="Reset"
             title="Reset"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
               <path d="M8 1a7 7 0 1 1-7 7h1.5a5.5 5.5 0 1 0 1.6-3.9L6 6H1V1l1.6 1.6A7 7 0 0 1 8 1z" />
             </svg>
           </button>
@@ -129,14 +130,27 @@ export function LivePreview({
             className={`LivePreview-controlBtn${isPlaying ? " LivePreview-controlBtn--playing" : ""}`}
             onClick={handlePlayPause}
             disabled={isLoading || isAtEnd}
+            aria-label={isPlaying ? "Pause" : "Play"}
             title={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M8 5v14l11-7L8 5z" />
               </svg>
             )}
@@ -145,6 +159,7 @@ export function LivePreview({
             className={`LivePreview-controlBtn${!isLoading && !isAtEnd ? " LivePreview-controlBtn--step" : ""}`}
             onClick={handleStep}
             disabled={isLoading || isAtEnd}
+            aria-label="Step forward"
             title="Step forward"
           >
             <svg
@@ -154,6 +169,7 @@ export function LivePreview({
               fill="none"
               stroke="currentColor"
               strokeWidth="2.5"
+              aria-hidden="true"
             >
               <path d="M9 6l6 6-6 6" />
             </svg>
@@ -162,9 +178,10 @@ export function LivePreview({
             className="LivePreview-controlBtn"
             onClick={handleSkip}
             disabled={isLoading || isAtEnd}
+            aria-label="Skip to end"
             title="Skip to end"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M5.5 18V6l9 6-9 6zm9-12h2v12h-2V6z" />
             </svg>
           </button>
@@ -177,10 +194,18 @@ export function LivePreview({
           onChange={() => {}}
           disabled
           className="LivePreview-slider"
+          aria-label="Playback progress"
         />
-        <span className="LivePreview-stepInfo">{statusText}</span>
+        <span
+          className="LivePreview-stepInfo"
+          data-testid="step-info"
+          role="status"
+          aria-live="polite"
+        >
+          {statusText}
+        </span>
       </div>
-      <div className="LivePreview-container">
+      <div className="LivePreview-container" data-testid="preview-container">
         {isLoading ? (
           <span className="LivePreview-empty">Loading...</span>
         ) : showPlaceholder ? (

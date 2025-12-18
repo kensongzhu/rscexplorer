@@ -35,8 +35,8 @@ test("form sample", async () => {
   `);
 
   // Submit form
-  await h.frame().locator('.preview-container input[name="name"]').fill("World");
-  await h.frame().locator(".preview-container button").click();
+  await h.frame().getByTestId("preview-container").locator('input[name="name"]').fill("World");
+  await h.frame().getByTestId("preview-container").locator("button").click();
   expect(await h.preview("Sending")).toMatchInlineSnapshot(`
     "Form Action
     Sending..."

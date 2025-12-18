@@ -54,7 +54,9 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  transition: all 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    opacity 0.15s ease;
   border-left: 3px solid #555;
 }
 
@@ -175,7 +177,10 @@
   word-break: break-all;
   white-space: pre-wrap;
   border-left: 2px solid transparent;
-  transition: all 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .FlightLog-line:last-child {
@@ -301,7 +306,10 @@
   cursor: pointer;
   font-size: 14px;
   line-height: 22px;
-  transition: all 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .FlightLog-addButton:hover {

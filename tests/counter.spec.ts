@@ -39,7 +39,7 @@ test("counter sample", async () => {
   `);
 
   // Client interactivity works
-  await h.frame().locator(".preview-container button").last().click();
+  await h.frame().getByTestId("preview-container").locator("button").last().click();
   expect(await h.preview("Count: 1")).toMatchInlineSnapshot(`
     "Counter
 

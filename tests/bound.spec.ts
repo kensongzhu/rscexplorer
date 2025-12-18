@@ -72,8 +72,8 @@ test("bound sample - three concurrent actions", async () => {
   );
 
   // Fill all three inputs and submit all three forms
-  const inputs = h.frame().locator(".preview-container input");
-  const buttons = h.frame().locator(".preview-container button");
+  const inputs = h.frame().getByTestId("preview-container").locator("input");
+  const buttons = h.frame().getByTestId("preview-container").locator("button");
 
   await inputs.nth(0).fill("Alice");
   await inputs.nth(1).fill("Bob");

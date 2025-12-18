@@ -218,7 +218,9 @@
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
 .App-embedModal-tab:hover {
