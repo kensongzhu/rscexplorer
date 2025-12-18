@@ -49,14 +49,14 @@ export class WorkspaceSession {
     const worker = new WorkerClient(signal);
 
     try {
-      const clientExports = parseClientModule(clientCode);
+      const clientExports = await parseClientModule(clientCode);
       const manifest = buildManifest("client", clientExports);
-      const compiledClient = compileToCommonJS(clientCode);
+      const compiledClient = await compileToCommonJS(clientCode);
       const clientModule = evaluateClientModule(compiledClient);
       registerClientModule("client", clientModule);
 
-      const actionNames = parseServerActions(serverCode);
-      const compiledServer = compileToCommonJS(serverCode);
+      const actionNames = await parseServerActions(serverCode);
+      const compiledServer = await compileToCommonJS(serverCode);
 
       await worker.deploy(compiledServer, manifest, actionNames);
       const renderRaw = await worker.render();
