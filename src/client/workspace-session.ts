@@ -15,6 +15,21 @@ export type SessionState =
 
 let lastId = 0;
 
+const emptySnapshot = {
+  entries: [] as never[],
+  cursor: 0,
+  totalChunks: 0,
+  isAtStart: true,
+  isAtEnd: false,
+};
+
+export const loadingTimeline = {
+  subscribe: () => () => {},
+  getSnapshot: () => emptySnapshot,
+  stepForward: () => {},
+  skipToEntryEnd: () => {},
+};
+
 export class WorkspaceSession {
   readonly timeline = new Timeline();
   readonly state: SessionState;
@@ -91,7 +106,7 @@ export class WorkspaceSession {
     return stream.flightPromise;
   }
 
-  async addRawAction(actionName: string, rawPayload: string): Promise<void> {
+  addRawAction = async (actionName: string, rawPayload: string): Promise<void> => {
     await this.runAction(actionName, { type: "formdata", data: rawPayload }, rawPayload);
-  }
+  };
 }

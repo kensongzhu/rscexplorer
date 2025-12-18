@@ -47,6 +47,7 @@ type LivePreviewProps = {
   totalChunks: number;
   isAtStart: boolean;
   isAtEnd: boolean;
+  isLoading: boolean;
   onStep: () => void;
   onSkip: () => void;
   onReset: () => void;
@@ -58,6 +59,7 @@ export function LivePreview({
   totalChunks,
   isAtStart,
   isAtEnd,
+  isLoading,
   onStep,
   onSkip,
   onReset,
@@ -99,7 +101,9 @@ export function LivePreview({
   };
 
   let statusText = "";
-  if (isAtStart) {
+  if (isLoading) {
+    statusText = "Compiling";
+  } else if (isAtStart) {
     statusText = "Ready";
   } else if (isAtEnd) {
     statusText = "Done";
@@ -114,7 +118,7 @@ export function LivePreview({
           <button
             className="LivePreview-controlBtn"
             onClick={handleReset}
-            disabled={isAtStart}
+            disabled={isLoading || isAtStart}
             title="Reset"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -124,7 +128,7 @@ export function LivePreview({
           <button
             className={`LivePreview-controlBtn${isPlaying ? " LivePreview-controlBtn--playing" : ""}`}
             onClick={handlePlayPause}
-            disabled={isAtEnd}
+            disabled={isLoading || isAtEnd}
             title={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? (
@@ -138,9 +142,9 @@ export function LivePreview({
             )}
           </button>
           <button
-            className={`LivePreview-controlBtn${!isAtEnd ? " LivePreview-controlBtn--step" : ""}`}
+            className={`LivePreview-controlBtn${!isLoading && !isAtEnd ? " LivePreview-controlBtn--step" : ""}`}
             onClick={handleStep}
-            disabled={isAtEnd}
+            disabled={isLoading || isAtEnd}
             title="Step forward"
           >
             <svg
@@ -157,7 +161,7 @@ export function LivePreview({
           <button
             className="LivePreview-controlBtn"
             onClick={handleSkip}
-            disabled={isAtEnd}
+            disabled={isLoading || isAtEnd}
             title="Skip to end"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -177,7 +181,9 @@ export function LivePreview({
         <span className="LivePreview-stepInfo">{statusText}</span>
       </div>
       <div className="LivePreview-container">
-        {showPlaceholder ? (
+        {isLoading ? (
+          <span className="LivePreview-empty">Compiling...</span>
+        ) : showPlaceholder ? (
           <span className="LivePreview-empty">{isAtStart ? "Step to begin..." : "Loading..."}</span>
         ) : flightPromise ? (
           <PreviewErrorBoundary>

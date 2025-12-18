@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useSyncExternalStore, startTransition } from "react";
-import { WorkspaceSession } from "../workspace-session.ts";
+import React, { useState, useEffect, useSyncExternalStore } from "react";
+import { WorkspaceSession, loadingTimeline } from "../workspace-session.ts";
 import { CodeEditor } from "./CodeEditor.tsx";
 import { FlightLog } from "./FlightLog.tsx";
 import { LivePreview } from "./LivePreview.tsx";
@@ -26,9 +26,7 @@ export function Workspace({
     const abort = new AbortController();
     WorkspaceSession.create(serverCode, clientCode, abort.signal).then((nextSession) => {
       if (!abort.signal.aborted) {
-        startTransition(() => {
-          setSession(nextSession);
-        });
+        setSession(nextSession);
       }
     });
     return () => abort.abort();
@@ -48,6 +46,15 @@ export function Workspace({
     setResetKey((k) => k + 1);
   }
 
+  const timeline = session?.timeline ?? loadingTimeline;
+  const { entries, cursor, totalChunks, isAtStart, isAtEnd } = useSyncExternalStore(
+    timeline.subscribe,
+    timeline.getSnapshot,
+  );
+
+  const isLoading = !session;
+  const isError = session?.state.status === "error";
+
   return (
     <main className="Workspace">
       <div className="Workspace-server">
@@ -56,83 +63,25 @@ export function Workspace({
       <div className="Workspace-client">
         <CodeEditor label="client" defaultValue={clientCode} onChange={handleClientChange} />
       </div>
-      {session ? (
-        <WorkspaceContent session={session} onReset={reset} key={session.id} />
-      ) : (
-        <WorkspaceLoading />
-      )}
-    </main>
-  );
-}
-
-function WorkspaceLoading(): React.ReactElement {
-  return (
-    <>
       <div className="Workspace-flight">
         <Pane label="flight">
-          <div className="Workspace-loadingOutput">
-            <span className="Workspace-loadingEmpty Workspace-loadingEmpty--waiting">
-              Compiling
-            </span>
-          </div>
-        </Pane>
-      </div>
-      <div className="Workspace-preview">
-        <Pane label="preview">
-          <div className="Workspace-loadingPreview">
-            <span className="Workspace-loadingEmpty Workspace-loadingEmpty--waiting">
-              Compiling
-            </span>
-          </div>
-        </Pane>
-      </div>
-    </>
-  );
-}
-
-type WorkspaceContentProps = {
-  session: WorkspaceSession;
-  onReset: () => void;
-};
-
-function WorkspaceContent({ session, onReset }: WorkspaceContentProps): React.ReactElement {
-  const { entries, cursor, totalChunks, isAtStart, isAtEnd } = useSyncExternalStore(
-    session.timeline.subscribe,
-    session.timeline.getSnapshot,
-  );
-
-  if (session.state.status === "error") {
-    return (
-      <>
-        <div className="Workspace-flight">
-          <Pane label="flight">
-            <pre className="Workspace-errorOutput">{session.state.message}</pre>
-          </Pane>
-        </div>
-        <div className="Workspace-preview">
-          <Pane label="preview">
-            <div className="Workspace-errorPreview">
-              <span className="Workspace-errorMessage">Compilation error</span>
+          {isLoading ? (
+            <div className="Workspace-loadingOutput">
+              <span className="Workspace-loadingEmpty Workspace-loadingEmpty--waiting">
+                Compiling
+              </span>
             </div>
-          </Pane>
-        </div>
-      </>
-    );
-  }
-
-  const { availableActions } = session.state;
-
-  return (
-    <>
-      <div className="Workspace-flight">
-        <Pane label="flight">
-          <FlightLog
-            entries={entries}
-            cursor={cursor}
-            availableActions={availableActions}
-            onAddRawAction={(name, payload) => session.addRawAction(name, payload)}
-            onDeleteEntry={(idx) => session.timeline.deleteEntry(idx)}
-          />
+          ) : isError ? (
+            <pre className="Workspace-errorOutput">{session.state.message}</pre>
+          ) : (
+            <FlightLog
+              entries={entries}
+              cursor={cursor}
+              availableActions={session.state.availableActions}
+              onAddRawAction={session.addRawAction}
+              onDeleteEntry={session.timeline.deleteEntry}
+            />
+          )}
         </Pane>
       </div>
       <div className="Workspace-preview">
@@ -142,11 +91,12 @@ function WorkspaceContent({ session, onReset }: WorkspaceContentProps): React.Re
           totalChunks={totalChunks}
           isAtStart={isAtStart}
           isAtEnd={isAtEnd}
-          onStep={() => session.timeline.stepForward()}
-          onSkip={() => session.timeline.skipToEntryEnd()}
-          onReset={onReset}
+          isLoading={isLoading || isError}
+          onStep={timeline.stepForward}
+          onSkip={timeline.skipToEntryEnd}
+          onReset={reset}
         />
       </div>
-    </>
+    </main>
   );
 }

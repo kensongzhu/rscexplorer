@@ -80,18 +80,18 @@ export class Timeline {
     return this.cachedSnapshot;
   };
 
-  setRender(stream: SteppableStream): void {
+  setRender = (stream: SteppableStream): void => {
     this.entries = [{ type: "render", stream }];
     this.cursor = 0;
     this.notify();
-  }
+  };
 
-  addAction(name: string, args: string, stream: SteppableStream): void {
+  addAction = (name: string, args: string, stream: SteppableStream): void => {
     this.entries = [...this.entries, { type: "action", name, args, stream }];
     this.notify();
-  }
+  };
 
-  deleteEntry(entryIndex: number): void {
+  deleteEntry = (entryIndex: number): void => {
     let chunkStart = 0;
     for (let i = 0; i < entryIndex; i++) {
       chunkStart += this.entries[i]!.stream.rows.length;
@@ -101,9 +101,9 @@ export class Timeline {
     }
     this.entries = this.entries.filter((_, i) => i !== entryIndex);
     this.notify();
-  }
+  };
 
-  stepForward(): void {
+  stepForward = (): void => {
     let remaining = this.cursor;
     for (const entry of this.entries) {
       const count = entry.stream.rows.length;
@@ -115,9 +115,9 @@ export class Timeline {
       }
       remaining -= count;
     }
-  }
+  };
 
-  skipToEntryEnd(): void {
+  skipToEntryEnd = (): void => {
     let remaining = this.cursor;
     for (const entry of this.entries) {
       const count = entry.stream.rows.length;
@@ -131,11 +131,11 @@ export class Timeline {
       }
       remaining -= count;
     }
-  }
+  };
 
-  clear(): void {
+  clear = (): void => {
     this.entries = [];
     this.cursor = 0;
     this.notify();
-  }
+  };
 }
