@@ -21,6 +21,7 @@ const emptySnapshot = {
   totalChunks: 0,
   isAtStart: true,
   isAtEnd: false,
+  isStreaming: false,
 };
 
 export const loadingTimeline = {
@@ -69,7 +70,6 @@ export class WorkspaceSession {
       const renderStream = new SteppableStream(renderRaw, {
         callServer: session.callServer.bind(session),
       });
-      await renderStream.waitForBuffer();
       session.timeline.setRender(renderStream);
 
       return session;
@@ -86,27 +86,18 @@ export class WorkspaceSession {
     args: EncodedArgs,
     argsDisplay: string,
   ): Promise<SteppableStream> {
-    let stream: SteppableStream;
+    let source: ReadableStream<Uint8Array>;
     try {
-      const responseRaw = await this.worker.callAction(actionName, args);
-      stream = new SteppableStream(responseRaw, {
-        callServer: this.callServer.bind(this),
-      });
-      await stream.waitForBuffer();
+      source = await this.worker.callAction(actionName, args);
     } catch (err) {
-      let error = err instanceof Error ? err : new Error(String(err));
-      if (error.message === "Connection closed.") {
-        error = new Error(
-          "Connection closed.\n\nThis usually means React couldn't parse the request payload. " +
-            "Try triggering a real action first and copying its payload format.",
-        );
-      }
-      stream = SteppableStream.fromError(error);
+      const error = err instanceof Error ? err : new Error(String(err));
+      source = new ReadableStream({ start: (c) => c.error(error) });
     }
+
+    const stream = new SteppableStream(source, {
+      callServer: this.callServer.bind(this),
+    });
     this.timeline.addAction(actionName, argsDisplay, stream);
-    if (stream.error) {
-      throw stream.error;
-    }
     return stream;
   }
 

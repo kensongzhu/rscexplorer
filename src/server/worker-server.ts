@@ -136,7 +136,19 @@ async function callAction(
     body = encodedArgs.data;
   }
 
-  const decoded = await decodeReply(body, {});
+  let decoded;
+  try {
+    decoded = await decodeReply(body, {});
+  } catch (e: any) {
+    let message;
+    message =
+      "React couldn't parse the request payload. " +
+      "Try triggering a real action first and copying its payload format.";
+    if (e?.message !== "Connection closed.") {
+      message += "\n\n" + e.toString();
+    }
+    throw new Error(message);
+  }
   const args = Array.isArray(decoded) ? decoded : [decoded];
   const result = await actionFn(...args);
 

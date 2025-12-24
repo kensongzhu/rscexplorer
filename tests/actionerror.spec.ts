@@ -112,5 +112,5 @@ test("action error - raw action with invalid payload shows error", async () => {
 
   // Verify error message includes our helpful hint about payload format
   const errorText = await errorEntry.innerText();
-  expect(errorText).toContain("couldn't parse the request payload");
+  expect(errorText).toContain("React couldn't parse the request payload");
 });

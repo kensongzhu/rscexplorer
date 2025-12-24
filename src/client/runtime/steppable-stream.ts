@@ -5,7 +5,6 @@ import {
 
 export type CallServerCallback = ImportedCallServerCallback;
 
-// React's Thenable type (not exported from react package)
 export interface Thenable<T> {
   then<TResult1 = T, TResult2 = never>(
     onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null,
@@ -17,54 +16,63 @@ export interface SteppableStreamOptions {
   callServer?: CallServerCallback;
 }
 
-/**
- * SteppableStream - makes a Flight stream steppable for debugging.
- *
- * Buffers incoming rows and controls their release to the Flight decoder.
- * The flightPromise only resolves when all rows have been released.
- */
+const noop = () => {};
+const encoder = new TextEncoder();
+
 export class SteppableStream {
   rows: string[] = [];
-  releasedCount = 0;
-  buffered = false;
-  closed = false;
+  done = false;
   error: Error | null = null;
-  release: (count: number) => void;
   flightPromise: Thenable<unknown>;
-  bufferPromise: Promise<void>;
+
+  private controller!: ReadableStreamDefaultController<Uint8Array>;
+  private releasedCount = 0;
+  private closed = false;
+  private yieldIndex = 0;
+  private ping = noop;
 
   constructor(source: ReadableStream<Uint8Array>, options: SteppableStreamOptions = {}) {
     const { callServer } = options;
 
-    const encoder = new TextEncoder();
-    let controller: ReadableStreamDefaultController<Uint8Array>;
     const output = new ReadableStream<Uint8Array>({
       start: (c) => {
-        controller = c;
+        this.controller = c;
       },
     });
 
-    this.release = (count: number): void => {
-      while (this.releasedCount < count && this.releasedCount < this.rows.length) {
-        const row = this.rows[this.releasedCount];
-        if (row !== undefined) {
-          controller.enqueue(encoder.encode(row + "\n"));
-        }
-        this.releasedCount++;
-      }
-      if (this.releasedCount >= this.rows.length && this.buffered && !this.closed) {
-        controller.close();
-        this.closed = true;
-      }
-    };
-
     const streamOptions = callServer ? { callServer } : {};
     this.flightPromise = createFromReadableStream(output, streamOptions);
-    this.bufferPromise = this.buffer(source);
+    this.consumeSource(source);
   }
 
-  private async buffer(stream: ReadableStream<Uint8Array>): Promise<void> {
-    const reader = stream.getReader();
+  release(count: number): void {
+    if (this.closed) return;
+
+    while (this.releasedCount < count && this.releasedCount < this.rows.length) {
+      this.controller.enqueue(encoder.encode(this.rows[this.releasedCount]! + "\n"));
+      this.releasedCount++;
+    }
+
+    this.maybeClose();
+  }
+
+  async *[Symbol.asyncIterator](): AsyncGenerator<string> {
+    while (true) {
+      while (this.yieldIndex < this.rows.length) {
+        yield this.rows[this.yieldIndex++]!;
+      }
+      if (this.error) throw this.error;
+      if (this.done) return;
+
+      await new Promise<void>((resolve) => {
+        this.ping = resolve;
+      });
+      this.ping = noop;
+    }
+  }
+
+  private async consumeSource(source: ReadableStream<Uint8Array>): Promise<void> {
+    const reader = source.getReader();
     const decoder = new TextDecoder();
     let partial = "";
 
@@ -78,37 +86,35 @@ export class SteppableStream {
         partial = lines.pop() ?? "";
 
         for (const line of lines) {
-          if (line.trim()) this.rows.push(line);
+          if (line.trim()) {
+            this.rows.push(line);
+          }
         }
+        this.ping();
       }
 
       partial += decoder.decode();
-      if (partial.trim()) this.rows.push(partial);
+      if (partial.trim()) {
+        this.rows.push(partial);
+      }
     } catch (err) {
       this.error = err instanceof Error ? err : new Error(String(err));
     } finally {
-      this.buffered = true;
+      this.done = true;
+      this.ping();
+      this.maybeClose();
     }
   }
 
-  async waitForBuffer(): Promise<void> {
-    await this.bufferPromise;
-    if (this.error) {
-      throw this.error;
+  private maybeClose(): void {
+    if (this.closed) return;
+    if (this.done && this.releasedCount >= this.rows.length) {
+      this.closed = true;
+      if (this.error) {
+        this.controller.error(this.error);
+      } else {
+        this.controller.close();
+      }
     }
-  }
-
-  static fromError(error: Error): SteppableStream {
-    const emptyStream = new ReadableStream<Uint8Array>({
-      start(controller) {
-        controller.close();
-      },
-    });
-    const stream = new SteppableStream(emptyStream);
-    stream.error = error;
-    stream.buffered = true;
-    // Override flightPromise to reject so client transitions complete
-    stream.flightPromise = Promise.reject(error);
-    return stream;
   }
 }

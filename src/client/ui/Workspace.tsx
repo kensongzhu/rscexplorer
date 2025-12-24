@@ -54,7 +54,7 @@ export function Workspace({
   }
 
   const timeline = session?.timeline ?? loadingTimeline;
-  const { entries, cursor, totalChunks, isAtStart, isAtEnd } = useSyncExternalStore(
+  const { entries, cursor, totalChunks, isAtStart, isAtEnd, isStreaming } = useSyncExternalStore(
     timeline.subscribe,
     timeline.getSnapshot,
   );
@@ -98,6 +98,7 @@ export function Workspace({
           totalChunks={totalChunks}
           isAtStart={isAtStart}
           isAtEnd={isAtEnd}
+          isStreaming={isStreaming}
           isLoading={isLoading || isError}
           onStep={timeline.stepForward}
           onSkip={timeline.skipToEntryEnd}

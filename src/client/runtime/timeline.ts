@@ -8,7 +8,7 @@ export type EntryView = {
   type: "render" | "action";
   name?: string;
   args?: string;
-  rows: string[];
+  rows: readonly string[];
   flightPromise: Thenable<unknown> | undefined;
   error: Error | null;
   chunkStart: number;
@@ -24,6 +24,7 @@ export interface TimelineSnapshot {
   totalChunks: number;
   isAtStart: boolean;
   isAtEnd: boolean;
+  isStreaming: boolean;
 }
 
 type Listener = () => void;
@@ -53,12 +54,13 @@ export class Timeline {
 
     let chunkStart = 0;
     const entries: EntryView[] = this.entries.map((entry) => {
-      const chunkCount = entry.stream.rows.length;
+      const { stream } = entry;
+      const chunkCount = stream.rows.length;
       const chunkEnd = chunkStart + chunkCount;
       const base = {
-        rows: entry.stream.rows,
-        flightPromise: entry.stream.flightPromise,
-        error: entry.stream.error,
+        rows: stream.rows,
+        flightPromise: stream.flightPromise,
+        error: stream.error,
         chunkStart,
         chunkCount,
         canDelete: this.cursor <= chunkStart,
@@ -78,6 +80,7 @@ export class Timeline {
       totalChunks: chunkStart,
       isAtStart: this.cursor === 0,
       isAtEnd: this.cursor >= chunkStart,
+      isStreaming: this.entries.some((e) => !e.stream.done),
     };
     return this.cachedSnapshot;
   };
@@ -85,13 +88,26 @@ export class Timeline {
   setRender = (stream: SteppableStream): void => {
     this.entries = [{ type: "render", stream }];
     this.cursor = 0;
+    this.watchStream(stream);
     this.notify();
   };
 
   addAction = (name: string, args: string, stream: SteppableStream): void => {
     this.entries = [...this.entries, { type: "action", name, args, stream }];
+    this.watchStream(stream);
     this.notify();
   };
+
+  private async watchStream(stream: SteppableStream): Promise<void> {
+    try {
+      for await (const _ of stream) {
+        this.notify();
+      }
+      this.notify();
+    } catch {
+      this.notify();
+    }
+  }
 
   deleteEntry = (entryIndex: number): void => {
     let chunkStart = 0;

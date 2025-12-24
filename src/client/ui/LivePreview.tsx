@@ -47,6 +47,7 @@ type LivePreviewProps = {
   totalChunks: number;
   isAtStart: boolean;
   isAtEnd: boolean;
+  isStreaming: boolean;
   isLoading: boolean;
   onStep: () => void;
   onSkip: () => void;
@@ -59,6 +60,7 @@ export function LivePreview({
   totalChunks,
   isAtStart,
   isAtEnd,
+  isStreaming,
   isLoading,
   onStep,
   onSkip,
@@ -105,8 +107,10 @@ export function LivePreview({
     statusText = "Loading";
   } else if (isAtStart) {
     statusText = "Ready";
-  } else if (isAtEnd) {
+  } else if (isAtEnd && !isStreaming) {
     statusText = "Done";
+  } else if (isAtEnd && isStreaming) {
+    statusText = "Waiting";
   } else {
     statusText = `${cursor} / ${totalChunks}`;
   }
