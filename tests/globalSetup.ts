@@ -20,6 +20,7 @@ export async function setup(): Promise<void> {
   server = spawn("npx", ["vite", "--port", "5599", "--strictPort"], {
     stdio: "inherit",
     shell: true,
+    detached: true,
   });
 
   server.on("close", (code) => {
@@ -33,7 +34,13 @@ export async function setup(): Promise<void> {
 }
 
 export async function teardown(): Promise<void> {
-  if (server) {
-    server.kill();
+  if (server && server.pid) {
+    // Kill the entire process group (negative PID) to ensure
+    // child processes spawned by the shell are also terminated
+    try {
+      process.kill(-server.pid, "SIGTERM");
+    } catch {
+      // Process may already be dead
+    }
   }
 }
